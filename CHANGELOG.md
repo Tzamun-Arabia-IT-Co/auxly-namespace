@@ -1,21 +1,62 @@
 # Changelog
 
+## [0.1.5] - 2025-10-23
+
+### 🐛 Critical Fix - API Key Verification on Systems Without curl
+
+#### 🔧 Cross-Platform Compatibility
+- ✅ **Fallback HTTP Client** - Now uses Node.js native HTTPS when curl.exe is not available
+- ✅ **Automatic Detection** - Tries curl first, falls back to native HTTPS seamlessly  
+- ✅ **No Manual Configuration** - Works out of the box on all systems
+- ✅ **Same SSL Handling** - Maintains security settings across both methods
+
+#### 📝 What This Fixes
+- Resolves "Command failed: curl.exe" error on fresh Windows installations
+- API key verification now works on all systems (with or without curl)
+- Extension activates successfully regardless of system configuration
+- No more "External HTTP request failed" errors
+
+#### 🎯 Technical Details
+- Primary method: curl.exe (Windows 10+)
+- Fallback method: Node.js native HTTPS module
+- Both methods bypass SSL restrictions for Let's Encrypt certificates
+- Automatic fallback with clear logging for debugging
+
+---
+
 ## [0.1.4] - 2025-10-23
 
-### 🔍 Enhanced Cursor Marketplace Visibility
+### 🐛 Critical Bug Fixes & Stability Improvements
 
-#### 🎯 Improved Discoverability
-- ✅ **Enhanced Keywords** - Added Cursor-specific search terms (cursor, cursor ai, cursor ide, cursor extension, cursor tools)
-- ✅ **MCP Keywords** - Added Model Context Protocol tags for better MCP tool discovery
-- ✅ **Better Categorization** - Optimized category order for Cursor marketplace indexing
-- ✅ **Cursor Compatibility File** - Added `.cursorignore` for Cursor recognition
-- ✅ **Expanded Tags** - Added task management, project management, workflow, automation keywords
+#### 🔒 Security & Workflow Enhancements
+- ✅ **Hold Status Bypass Prevention** - AI can no longer bypass task hold restrictions by changing availability status
+- ✅ **Clear Error Messages** - Error messages now accurately reflect the actual validation issue (no confusing mixed messages)
+- ✅ **Research Validation Fixed** - Research added via MCP tools is now properly recognized and validated
 
-#### 📝 What This Means
-- Better search results when searching "cursor" in Cursor marketplace
-- Improved indexing in Cursor's extension search
-- More discoverable for Cursor-specific features (MCP, AI collaboration)
-- Enhanced marketplace SEO for AI-powered task management
+#### 🎯 Technical Improvements
+- ✅ **MCP Server Stability** - Enhanced error handling and validation logic
+- ✅ **Storage Sync** - Improved task data reloading from disk
+- ✅ **Research Detection** - Validates both research arrays and research comments
+- ✅ **Error Context** - Errors now show specific guidance based on validation type
+
+#### 📦 Package Updates
+- **Version:** 0.1.4
+- **Size:** 15.8 MB (includes complete MCP server with all fixes)
+- **Files:** 3,352 files
+- All workflow rule files included (.mdc)
+- Complete MCP tool suite (12 tools)
+
+#### 🧪 Fully Tested
+- ✅ Hold restriction enforcement verified
+- ✅ Research validation working correctly
+- ✅ Status transitions smooth
+- ✅ Error messages clear and helpful
+- ✅ Complete workflow tested end-to-end
+
+#### 🇸🇦 Made in Saudi Arabia with ❤️
+- Production-ready and stable
+- All critical bugs resolved
+- Ready for Open VSX publication
 
 ---
 

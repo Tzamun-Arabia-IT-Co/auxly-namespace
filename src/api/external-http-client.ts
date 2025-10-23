@@ -5,6 +5,8 @@
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import * as https from 'https';
+import * as http from 'http';
 
 const execAsync = promisify(exec);
 
@@ -17,6 +19,7 @@ export interface ExternalHttpResponse<T = any> {
 /**
  * Make HTTP request using PowerShell/curl in child process
  * This completely bypasses Electron's SSL restrictions
+ * Falls back to native Node.js HTTPS if curl is not available
  */
 export async function externalHttpGet<T = any>(
     url: string,
@@ -59,8 +62,76 @@ export async function externalHttpGet<T = any>(
             success: status >= 200 && status < 300,
         };
     } catch (error: any) {
-        console.error('❌ External HTTP error:', error);
-        throw new Error(`External HTTP request failed: ${error.message}`);
+        console.error('❌ External HTTP error (curl failed), falling back to native HTTPS:', error);
+        
+        // FALLBACK: Use Node.js native HTTPS module if curl is not available
+        return fallbackToNativeHttp<T>(url, headers);
     }
+}
+
+/**
+ * Fallback to Node.js native HTTPS when curl is not available
+ */
+async function fallbackToNativeHttp<T = any>(
+    url: string,
+    headers?: Record<string, string>
+): Promise<ExternalHttpResponse<T>> {
+    return new Promise((resolve, reject) => {
+        const parsedUrl = new URL(url);
+        const isHttps = parsedUrl.protocol === 'https:';
+        const httpModule = isHttps ? https : http;
+
+        const options: https.RequestOptions = {
+            hostname: parsedUrl.hostname,
+            port: parsedUrl.port || (isHttps ? 443 : 80),
+            path: parsedUrl.pathname + parsedUrl.search,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...headers,
+            },
+            rejectUnauthorized: false, // Accept self-signed certificates
+            timeout: 30000,
+        };
+
+        console.log('🔄 Using native HTTPS fallback:', url);
+
+        const req = httpModule.request(options, (res) => {
+            let data = '';
+
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+
+            res.on('end', () => {
+                try {
+                    const parsedData = data ? JSON.parse(data) : null;
+                    const status = res.statusCode || 0;
+                    
+                    console.log('✅ Native HTTPS response status:', status);
+                    
+                    resolve({
+                        data: parsedData,
+                        status,
+                        success: status >= 200 && status < 300,
+                    });
+                } catch (parseError: any) {
+                    reject(new Error(`Failed to parse response: ${parseError.message}`));
+                }
+            });
+        });
+
+        req.on('error', (error) => {
+            console.error('❌ Native HTTPS error:', error);
+            reject(error);
+        });
+
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('Request timeout'));
+        });
+
+        req.end();
+    });
 }
 

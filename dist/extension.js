@@ -12316,7 +12316,7 @@ module.exports = desc && typeof desc.get === 'function'
 /***/ }),
 
 /***/ 7417:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -12324,14 +12324,50 @@ module.exports = desc && typeof desc.get === 'function'
  * External HTTP Client
  * Uses child process to completely bypass Electron's network stack
  */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.externalHttpGet = externalHttpGet;
 const child_process_1 = __webpack_require__(5317);
 const util_1 = __webpack_require__(9023);
+const https = __importStar(__webpack_require__(5692));
+const http = __importStar(__webpack_require__(8611));
 const execAsync = (0, util_1.promisify)(child_process_1.exec);
 /**
  * Make HTTP request using PowerShell/curl in child process
  * This completely bypasses Electron's SSL restrictions
+ * Falls back to native Node.js HTTPS if curl is not available
  */
 async function externalHttpGet(url, headers) {
     try {
@@ -12364,9 +12400,63 @@ async function externalHttpGet(url, headers) {
         };
     }
     catch (error) {
-        console.error('❌ External HTTP error:', error);
-        throw new Error(`External HTTP request failed: ${error.message}`);
+        console.error('❌ External HTTP error (curl failed), falling back to native HTTPS:', error);
+        // FALLBACK: Use Node.js native HTTPS module if curl is not available
+        return fallbackToNativeHttp(url, headers);
     }
+}
+/**
+ * Fallback to Node.js native HTTPS when curl is not available
+ */
+async function fallbackToNativeHttp(url, headers) {
+    return new Promise((resolve, reject) => {
+        const parsedUrl = new URL(url);
+        const isHttps = parsedUrl.protocol === 'https:';
+        const httpModule = isHttps ? https : http;
+        const options = {
+            hostname: parsedUrl.hostname,
+            port: parsedUrl.port || (isHttps ? 443 : 80),
+            path: parsedUrl.pathname + parsedUrl.search,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...headers,
+            },
+            rejectUnauthorized: false, // Accept self-signed certificates
+            timeout: 30000,
+        };
+        console.log('🔄 Using native HTTPS fallback:', url);
+        const req = httpModule.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+            res.on('end', () => {
+                try {
+                    const parsedData = data ? JSON.parse(data) : null;
+                    const status = res.statusCode || 0;
+                    console.log('✅ Native HTTPS response status:', status);
+                    resolve({
+                        data: parsedData,
+                        status,
+                        success: status >= 200 && status < 300,
+                    });
+                }
+                catch (parseError) {
+                    reject(new Error(`Failed to parse response: ${parseError.message}`));
+                }
+            });
+        });
+        req.on('error', (error) => {
+            console.error('❌ Native HTTPS error:', error);
+            reject(error);
+        });
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('Request timeout'));
+        });
+        req.end();
+    });
 }
 
 
@@ -13408,7 +13498,7 @@ DelayedStream.prototype._checkIfMaxDataSizeExceeded = function() {
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"auxly-extension","displayName":"Auxly by Tzamun - AI Task Management","description":"Enhance your development with AI that truly collaborates - featuring AI question popups with sound alerts, FORCED dual research (Technical + Business), and smart approval workflows. Made in Saudi Arabia 🇸🇦 with ❤️ for developers","version":"0.1.3","publisher":"Auxly","engines":{"vscode":"^1.85.0"},"categories":["Programming Languages","Machine Learning","Other"],"keywords":["cursor","cursor ai","cursor ide","cursor extension","cursor tools","task manager","task management","ai","ai assistant","ai collaboration","productivity","rules","cursor rules","mcp","model context protocol","saudi arabia","tzamun","dual research","technical research","business research","project management","workflow","automation"],"icon":"Auxly-Icon-Large.png","repository":{"type":"git","url":"https://github.com/Tzamun-Arabia-IT-Co/auxly-namespace.git"},"bugs":{"url":"https://github.com/Tzamun-Arabia-IT-Co/auxly-namespace/issues"},"homepage":"https://auxly.tzamun.com","activationEvents":["onStartupFinished"],"main":"./dist/extension.js","contributes":{"viewsContainers":{"activitybar":[{"id":"auxly","title":"Auxly","icon":"resources/icon-auxly.svg"}]},"views":{"auxly":[{"id":"auxlyTaskView","name":"Tasks","icon":"resources/icon.svg","contextualTitle":"Auxly Tasks"}]},"commands":[{"command":"auxly.connect","title":"Auxly: Connect with API Key","icon":"$(plug)"},{"command":"auxly.disconnect","title":"Auxly: Disconnect","icon":"$(debug-disconnect)"},{"command":"auxly.login","title":"Auxly: Login (Legacy)","icon":"$(sign-in)"},{"command":"auxly.logout","title":"Auxly: Logout","icon":"$(sign-out)"},{"command":"auxly.createTask","title":"Auxly: Create Task","icon":"$(add)"},{"command":"auxly.refreshTasks","title":"Auxly: Refresh Tasks","icon":"$(refresh)"},{"command":"auxly.deleteTask","title":"Auxly: Delete Task","icon":"$(trash)"},{"command":"auxly.generateRules","title":"Auxly: Generate Cursor Rules","icon":"$(sparkle)"},{"command":"auxly.viewAnalysis","title":"Auxly: View Workspace Analysis","icon":"$(graph)"},{"command":"auxly.clearCache","title":"Auxly: Clear Analysis Cache","icon":"$(clear-all)"},{"command":"auxly.openSettings","title":"Auxly: Open Settings","icon":"$(settings-gear)"},{"command":"auxly.viewSubscription","title":"Auxly: View Subscription","icon":"$(credit-card)"},{"command":"auxly.resetMCPConfig","title":"Auxly: Reset MCP Configuration","icon":"$(refresh)"},{"command":"auxly.openDashboard","title":"Auxly: Open Dashboard","icon":"$(dashboard)"},{"command":"auxly.verifyMcpDiagnostics","title":"Auxly: Verify MCP Diagnostics","icon":"$(checklist)"}],"menus":{"view/title":[{"command":"auxly.createTask","when":"view == auxlyTaskView","group":"navigation@1"},{"command":"auxly.refreshTasks","when":"view == auxlyTaskView","group":"navigation@2"}],"view/item/context":[{"command":"auxly.deleteTask","when":"view == auxlyTaskView && viewItem == task","group":"inline"}],"commandPalette":[{"command":"auxly.connect"},{"command":"auxly.disconnect"},{"command":"auxly.login"},{"command":"auxly.logout"},{"command":"auxly.createTask"},{"command":"auxly.refreshTasks"},{"command":"auxly.generateRules"},{"command":"auxly.viewAnalysis"},{"command":"auxly.clearCache"},{"command":"auxly.openSettings"},{"command":"auxly.viewSubscription"},{"command":"auxly.openDashboard"}]},"configuration":{"title":"Auxly","properties":{"auxly.apiUrl":{"type":"string","default":"https://auxly.tzamun.com:8000","description":"Auxly API server URL"},"auxly.autoSync":{"type":"boolean","default":true,"description":"Automatically sync tasks with the server"},"auxly.syncInterval":{"type":"number","default":30,"description":"Task sync interval in seconds"},"auxly.enableNotifications":{"type":"boolean","default":true,"description":"Show notifications for task updates"},"auxly.allowInsecureSSL":{"type":"boolean","default":false,"description":"Allow connections to servers with self-signed or invalid SSL certificates (not recommended for production)"}}}},"scripts":{"vscode:prepublish":"npm run package","compile":"webpack","watch":"webpack --watch","package":"webpack --mode production --devtool hidden-source-map","compile-tests":"tsc -p . --outDir out","watch-tests":"tsc -p . -w --outDir out","pretest":"npm run compile-tests && npm run compile && npm run lint","lint":"eslint src --ext ts","test":"node ./out/test/runTest.js"},"devDependencies":{"@types/node":"20.x","@types/vscode":"^1.85.0","@typescript-eslint/eslint-plugin":"^6.15.0","@typescript-eslint/parser":"^6.15.0","@vscode/test-electron":"^2.3.8","copy-webpack-plugin":"^13.0.1","eslint":"^8.56.0","ts-loader":"^9.5.1","typescript":"^5.3.3","webpack":"^5.89.0","webpack-cli":"^5.1.4"},"dependencies":{"@modelcontextprotocol/sdk":"^0.5.0","axios":"^1.6.7","jsonc-parser":"^3.3.1"},"license":"MIT"}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"auxly-extension","displayName":"Auxly by Tzamun - AI Task Management","description":"Enhance your development with AI that truly collaborates - featuring AI question popups with sound alerts, FORCED dual research (Technical + Business), and smart approval workflows. Made in Saudi Arabia 🇸🇦 with ❤️ for developers","version":"0.1.5","publisher":"Auxly","engines":{"vscode":"^1.85.0"},"categories":["Programming Languages","Machine Learning","Other"],"keywords":["cursor","cursor ai","cursor ide","cursor extension","cursor tools","task manager","task management","ai","ai assistant","ai collaboration","productivity","rules","cursor rules","mcp","model context protocol","saudi arabia","tzamun","dual research","technical research","business research","project management","workflow","automation"],"icon":"Auxly-Icon-Large.png","repository":{"type":"git","url":"https://github.com/Tzamun-Arabia-IT-Co/auxly-namespace.git"},"bugs":{"url":"https://github.com/Tzamun-Arabia-IT-Co/auxly-namespace/issues"},"homepage":"https://auxly.tzamun.com","activationEvents":["onStartupFinished"],"main":"./dist/extension.js","contributes":{"viewsContainers":{"activitybar":[{"id":"auxly","title":"Auxly","icon":"resources/icon-auxly.svg"}]},"views":{"auxly":[{"id":"auxlyTaskView","name":"Tasks","icon":"resources/icon.svg","contextualTitle":"Auxly Tasks"}]},"commands":[{"command":"auxly.connect","title":"Auxly: Connect with API Key","icon":"$(plug)"},{"command":"auxly.disconnect","title":"Auxly: Disconnect","icon":"$(debug-disconnect)"},{"command":"auxly.login","title":"Auxly: Login (Legacy)","icon":"$(sign-in)"},{"command":"auxly.logout","title":"Auxly: Logout","icon":"$(sign-out)"},{"command":"auxly.createTask","title":"Auxly: Create Task","icon":"$(add)"},{"command":"auxly.refreshTasks","title":"Auxly: Refresh Tasks","icon":"$(refresh)"},{"command":"auxly.deleteTask","title":"Auxly: Delete Task","icon":"$(trash)"},{"command":"auxly.generateRules","title":"Auxly: Generate Cursor Rules","icon":"$(sparkle)"},{"command":"auxly.viewAnalysis","title":"Auxly: View Workspace Analysis","icon":"$(graph)"},{"command":"auxly.clearCache","title":"Auxly: Clear Analysis Cache","icon":"$(clear-all)"},{"command":"auxly.openSettings","title":"Auxly: Open Settings","icon":"$(settings-gear)"},{"command":"auxly.viewSubscription","title":"Auxly: View Subscription","icon":"$(credit-card)"},{"command":"auxly.resetMCPConfig","title":"Auxly: Reset MCP Configuration","icon":"$(refresh)"},{"command":"auxly.openDashboard","title":"Auxly: Open Dashboard","icon":"$(dashboard)"},{"command":"auxly.verifyMcpDiagnostics","title":"Auxly: Verify MCP Diagnostics","icon":"$(checklist)"}],"menus":{"view/title":[{"command":"auxly.createTask","when":"view == auxlyTaskView","group":"navigation@1"},{"command":"auxly.refreshTasks","when":"view == auxlyTaskView","group":"navigation@2"}],"view/item/context":[{"command":"auxly.deleteTask","when":"view == auxlyTaskView && viewItem == task","group":"inline"}],"commandPalette":[{"command":"auxly.connect"},{"command":"auxly.disconnect"},{"command":"auxly.login"},{"command":"auxly.logout"},{"command":"auxly.createTask"},{"command":"auxly.refreshTasks"},{"command":"auxly.generateRules"},{"command":"auxly.viewAnalysis"},{"command":"auxly.clearCache"},{"command":"auxly.openSettings"},{"command":"auxly.viewSubscription"},{"command":"auxly.openDashboard"}]},"configuration":{"title":"Auxly","properties":{"auxly.apiUrl":{"type":"string","default":"https://auxly.tzamun.com:8000","description":"Auxly API server URL"},"auxly.autoSync":{"type":"boolean","default":true,"description":"Automatically sync tasks with the server"},"auxly.syncInterval":{"type":"number","default":30,"description":"Task sync interval in seconds"},"auxly.enableNotifications":{"type":"boolean","default":true,"description":"Show notifications for task updates"},"auxly.allowInsecureSSL":{"type":"boolean","default":false,"description":"Allow connections to servers with self-signed or invalid SSL certificates (not recommended for production)"}}}},"scripts":{"vscode:prepublish":"npm run package","compile":"webpack","watch":"webpack --watch","package":"webpack --mode production --devtool hidden-source-map","compile-tests":"tsc -p . --outDir out","watch-tests":"tsc -p . -w --outDir out","pretest":"npm run compile-tests && npm run compile && npm run lint","lint":"eslint src --ext ts","test":"node ./out/test/runTest.js"},"devDependencies":{"@types/node":"20.x","@types/vscode":"^1.85.0","@typescript-eslint/eslint-plugin":"^6.15.0","@typescript-eslint/parser":"^6.15.0","@vscode/test-electron":"^2.3.8","copy-webpack-plugin":"^13.0.1","eslint":"^8.56.0","ts-loader":"^9.5.1","typescript":"^5.3.3","webpack":"^5.89.0","webpack-cli":"^5.1.4"},"dependencies":{"@modelcontextprotocol/sdk":"^0.5.0","axios":"^1.6.7","jsonc-parser":"^3.3.1"},"license":"MIT"}');
 
 /***/ }),
 
