@@ -182,11 +182,11 @@ async function deployWorkflowRules(context: vscode.ExtensionContext) {
 
         const workspacePath = workspaceFolders[0].uri.fsPath;
         const targetRulesDir = path.join(workspacePath, '.cursor', 'rules');
-        const sourceRulesDir = path.join(context.extensionPath, '.cursor', 'rules');
+        const sourceRulesDir = path.join(context.extensionPath, 'resources', 'cursor-rules');
 
         // Check if source rules directory exists
         if (!fs.existsSync(sourceRulesDir)) {
-            console.log('⚠️ Source rules directory not found - skipping deployment');
+            console.log('⚠️ Source rules directory not found at:', sourceRulesDir);
             return;
         }
 

@@ -1,0 +1,301 @@
+---
+description: Mandatory MCP Questions - AI must ALWAYS ask questions via MCP tools, NEVER in chat
+alwaysApply: true
+---
+
+# ❓ Mandatory MCP Questions Protocol
+
+**CRITICAL: ALL QUESTIONS MUST GO THROUGH MCP**
+
+---
+
+## ⚠️ ABSOLUTE RULE
+
+**EVERY question to the user MUST be asked via `mcp_auxly_auxly_ask_question` tool.**
+
+**If you ask questions in chat → You are violating the workflow.**
+
+---
+
+## 🚫 FORBIDDEN: ASKING QUESTIONS IN CHAT
+
+**❌ NEVER do this:**
+```
+AI: "Which database would you prefer? PostgreSQL or MySQL?"
+AI: "Should I use TypeScript or JavaScript for this?"
+AI: "Do you want me to add tests?"
+```
+
+**These are CHAT QUESTIONS and are STRICTLY FORBIDDEN.**
+
+---
+
+## ✅ REQUIRED: ASK QUESTIONS VIA MCP
+
+**✅ ALWAYS do this:**
+```typescript
+await mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Which database would you prefer for user data storage?",
+  category: "TECHNICAL DECISION",
+  priority: "high",
+  context: "We need to choose between PostgreSQL (better for complex queries) and MySQL (simpler, more popular). PostgreSQL offers better JSON support and is recommended for this use case.",
+  options: [
+    { label: "PostgreSQL (recommended for complex data)", recommended: true },
+    { label: "MySQL (simpler, more popular)" },
+    { label: "SQLite (for development/testing only)" }
+  ]
+});
+```
+
+**User sees a beautiful popup with:**
+- Clear question text
+- Context explaining why you're asking
+- Multiple choice options
+- Recommended option highlighted
+- Sound alert notification
+
+---
+
+## 📋 WHEN TO ASK QUESTIONS VIA MCP
+
+**Ask questions via MCP for:**
+- ✅ Technical decisions (which library, which approach, which architecture)
+- ✅ Clarifications (unclear requirements, ambiguous user requests)
+- ✅ Approval requests (database changes, breaking changes, security changes)
+- ✅ UX decisions (design choices, user flow, feature variations)
+- ✅ Business decisions (pricing, features, priorities)
+- ✅ Any uncertainty whatsoever
+
+**Rule of thumb: If you're unsure about ANYTHING, ask via MCP.**
+
+---
+
+## 🎯 MCP QUESTION CATEGORIES
+
+Use appropriate category for each question:
+
+### **TECHNICAL DECISION**
+For technical choices, architecture, libraries, implementation approaches
+```typescript
+category: "TECHNICAL DECISION"
+```
+
+### **CLARIFICATION**
+For unclear requirements, ambiguous requests, missing information
+```typescript
+category: "CLARIFICATION"
+```
+
+### **APPROVAL REQUEST**
+For significant changes requiring explicit user approval
+```typescript
+category: "APPROVAL REQUEST"
+```
+
+### **UX DECISION**
+For user experience, design, interface choices
+```typescript
+category: "UX DECISION"
+```
+
+### **BUSINESS DECISION**
+For market, pricing, business strategy questions
+```typescript
+category: "BUSINESS DECISION"
+```
+
+---
+
+## 📊 MCP QUESTION PRIORITY
+
+Set appropriate priority:
+
+- **critical** - Blocking issue, cannot proceed without answer
+- **high** - Important decision that affects implementation significantly
+- **medium** - Helpful to know, but can make reasonable assumption if needed
+- **low** - Nice to know, minor preference
+
+```typescript
+priority: "high"  // or "critical", "medium", "low"
+```
+
+---
+
+## 💡 QUESTION BEST PRACTICES
+
+### **1. Provide Context**
+Explain WHY you're asking, what you've researched, what you recommend:
+```typescript
+context: "We need authentication for the API. I researched JWT, OAuth 2.0, and session cookies. JWT is recommended because it's stateless, scalable, and industry-standard for REST APIs. OAuth 2.0 would add unnecessary complexity for internal APIs."
+```
+
+### **2. Offer Clear Options**
+Give 2-5 clear choices with descriptions:
+```typescript
+options: [
+  { label: "JWT tokens (recommended - stateless, scalable)", recommended: true },
+  { label: "OAuth 2.0 (complex, better for third-party auth)" },
+  { label: "Session cookies (stateful, requires session storage)" }
+]
+```
+
+### **3. Mark Recommended Option**
+Based on your research, recommend the best option:
+```typescript
+{ label: "Option A (best for our use case)", recommended: true }
+```
+
+### **4. Ask One Thing at a Time**
+Don't combine multiple questions. Ask separately:
+```typescript
+// ❌ BAD: Multiple questions in one
+questionText: "Should we use JWT or OAuth? Also, should we add rate limiting? And what about CORS settings?"
+
+// ✅ GOOD: One question per MCP call
+questionText: "Which authentication method should we use?"
+// Then ask about rate limiting separately
+// Then ask about CORS separately
+```
+
+---
+
+## 🔔 AUTOMATIC NOTIFICATION SYSTEM
+
+**When you ask a question via MCP:**
+1. ✅ User sees a beautiful popup modal in Auxly extension
+2. ✅ Sound alert plays (3-tone chime)
+3. ✅ Sound repeats every 15 seconds until answered
+4. ✅ User clicks answer → Saved to task
+5. ✅ Extension shows "Copy Prompt" button
+6. ✅ User pastes prompt in chat
+7. ✅ You detect the answer and continue automatically
+
+**User does NOT need to type the question/answer in chat!**
+
+---
+
+## 📝 COMPLETE MCP QUESTION EXAMPLE
+
+```typescript
+// User request: "Add user authentication"
+
+// 1. Create task
+const task = await mcp_auxly_auxly_create_task({
+  title: "Implement user authentication system",
+  description: "Add secure authentication for API endpoints",
+  priority: "high",
+  tags: ["authentication", "security", "backend"]
+});
+
+// 2. Conduct research (both technical and business)
+await mcp_auxly_auxly_update_task({
+  taskId: task.id,
+  research: [
+    {
+      type: "technical",
+      source: "Local: src/api/api-client.ts",
+      summary: "No existing auth system found. API currently open to all requests.",
+      relevance: "Need to implement from scratch",
+      timestamp: new Date().toISOString()
+    },
+    {
+      type: "technical",
+      source: "https://jwt.io/introduction",
+      summary: "JWT is industry standard for stateless API authentication",
+      relevance: "Best choice for REST APIs",
+      timestamp: new Date().toISOString()
+    },
+    {
+      type: "business",
+      marketAnalysis: "95% of modern APIs use JWT or OAuth 2.0",
+      userNeeds: "Developers need secure, simple authentication",
+      businessValue: "Security increases trust, reduces liability",
+      roi: "Implementation: 8 hours. Prevents security breaches (potentially $10K+ in damages)",
+      timestamp: new Date().toISOString()
+    }
+  ]
+});
+
+// 3. Ask question via MCP (NOT in chat!)
+await mcp_auxly_auxly_ask_question({
+  taskId: task.id,
+  questionText: "Which authentication method should we use for the API?",
+  category: "TECHNICAL DECISION",
+  priority: "high",
+  context: "After researching authentication methods, I found three main options:\n\n1. **JWT (JSON Web Tokens)** - Stateless, scalable, industry standard. Best for REST APIs. No server session storage needed.\n\n2. **OAuth 2.0** - More complex, designed for third-party authorization. Overkill for internal APIs.\n\n3. **Session Cookies** - Stateful, requires session storage (Redis/database). Less scalable.\n\n**Recommendation:** JWT is the best choice for this use case because it's stateless, scalable, and industry-standard for REST APIs.",
+  options: [
+    { label: "JWT tokens (recommended - stateless, scalable)", recommended: true },
+    { label: "OAuth 2.0 (complex, for third-party auth)" },
+    { label: "Session cookies (stateful, needs Redis)" }
+  ]
+});
+
+// 4. Wait for user to answer via popup and paste prompt
+console.log("⏳ Question sent via MCP popup. Waiting for your answer...");
+console.log("💡 You don't need to type anything - just answer in the popup and paste the prompt here!");
+
+// 5. When user pastes prompt, get task and read answer
+const updatedTask = await mcp_auxly_auxly_get_task({ taskId: task.id });
+const lastQA = updatedTask.qaHistory[updatedTask.qaHistory.length - 1];
+const answer = lastQA.answer.selectedOption;
+
+console.log(`✅ Answer received: "${answer}"`);
+
+// 6. Continue implementation based on answer
+if (answer.includes("JWT")) {
+  console.log("🚀 Great! Implementing JWT authentication...");
+  // Implement JWT auth
+}
+```
+
+---
+
+## 🚨 ENFORCEMENT RULES
+
+| Rule | Enforcement |
+|------|-------------|
+| **MUST use MCP for ALL questions** | ✅ MANDATORY |
+| **NEVER ask questions in chat** | ❌ FORBIDDEN |
+| **Provide context for every question** | ✅ REQUIRED |
+| **Offer 2-5 clear options** | ✅ REQUIRED |
+| **Mark recommended option** | ✅ REQUIRED |
+| **Use appropriate category** | ✅ REQUIRED |
+| **Set appropriate priority** | ✅ REQUIRED |
+| **Ask one question at a time** | ✅ REQUIRED |
+
+---
+
+## ✅ BENEFITS OF MCP QUESTIONS
+
+**For Users:**
+- ✅ Beautiful popup UI (not buried in chat)
+- ✅ Sound alerts (won't miss questions)
+- ✅ Organized by task (easy to review)
+- ✅ Tracked in Q&A history
+- ✅ Can review all questions anytime
+
+**For AI:**
+- ✅ Structured question format
+- ✅ Automatic answer tracking
+- ✅ Clear context and options
+- ✅ Easy to parse answers
+- ✅ Integrated with task workflow
+
+**For Workflow:**
+- ✅ All questions documented
+- ✅ Decision history preserved
+- ✅ Audit trail for compliance
+- ✅ Easy to review past decisions
+
+---
+
+## 🎯 KEY TAKEAWAY
+
+**EVERY QUESTION = MCP QUESTION**
+
+**NO EXCEPTIONS. NO CHAT QUESTIONS. ALWAYS USE MCP.**
+
+---
+
+**If you find yourself about to type a question in chat, STOP and use `mcp_auxly_auxly_ask_question` instead!**

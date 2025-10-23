@@ -1,0 +1,311 @@
+---
+description: Mandatory Research Protocol - AI must ALWAYS conduct local codebase and internet research before any implementation
+alwaysApply: true
+---
+
+# 🔬 Mandatory Research Protocol - Auxly MCP
+
+**CRITICAL: NO IMPLEMENTATION WITHOUT RESEARCH**
+
+---
+
+## ⚠️ ABSOLUTE RULE
+
+**EVERY task MUST have comprehensive research BEFORE any code is written.**
+
+**If you skip research → Task is invalid and must be redone.**
+
+---
+
+## 📋 RESEARCH CHECKLIST (ALL REQUIRED)
+
+### 1. **LOCAL CODEBASE SEARCH** ✅
+
+Search existing project for:
+- ✅ Existing similar implementations
+- ✅ Current architecture patterns
+- ✅ Naming conventions
+- ✅ Code style and structure
+- ✅ Dependencies already in use
+
+**Tools to use:**
+- `codebase_search` - Find relevant code
+- `grep` - Search for specific patterns
+- `read_file` - Examine existing files
+
+---
+
+### 2. **DUAL RESEARCH TYPES - BOTH REQUIRED** ✅
+
+**⚠️ CRITICAL: EVERY task MUST have BOTH research types:**
+
+#### 🔧 **TECHNICAL RESEARCH** (Required)
+Focus on implementation, code, and architecture:
+- Latest library versions and security
+- Performance benchmarks
+- Code patterns and best practices
+- Technical documentation
+- Compatibility and dependencies
+
+#### 💼 **BUSINESS RESEARCH** (Required)
+Focus on market, users, and value:
+- Market analysis and competitors
+- User needs and pain points
+- Business value and ROI
+- Industry trends
+- Adoption barriers and opportunities
+
+---
+
+### 3. **INTERNET RESEARCH** ✅
+
+Search for 2025 best practices:
+- ✅ Latest library versions
+- ✅ Security vulnerabilities
+- ✅ Performance benchmarks
+- ✅ Community recommendations
+- ✅ Official documentation
+- ✅ Market trends and competitor analysis
+
+**Use `web_search` tool to find current information.**
+
+---
+
+### 4. **LIBRARY ASSESSMENT** ✅
+
+For any new dependencies:
+- ✅ Current stable version
+- ✅ Last update date
+- ✅ Security audit status
+- ✅ GitHub stars/activity
+- ✅ Bundle size impact
+- ✅ TypeScript support
+- ✅ License compatibility
+
+---
+
+### 5. **DOCUMENT FINDINGS - DUAL RESEARCH** ✅
+
+Add **BOTH** research types to task via MCP:
+
+```typescript
+mcp_auxly_auxly_update_task({
+  taskId: "X",
+  research: [
+    // 🔧 TECHNICAL RESEARCH (type: "technical")
+    {
+      type: "technical",
+      source: "Local codebase: src/auth/",
+      summary: "Existing JWT implementation using jsonwebtoken v9.0.0",
+      relevance: "Can reuse same patterns for new auth endpoint",
+      codeSnippet: "// Existing pattern...",
+      timestamp: new Date().toISOString()
+    },
+    {
+      type: "technical",
+      source: "https://www.npmjs.com/package/jsonwebtoken",
+      summary: "jsonwebtoken v9.0.2 is latest stable (Oct 2024)",
+      relevance: "Should update from v9.0.0 to v9.0.2 for security patches",
+      timestamp: new Date().toISOString()
+    },
+    {
+      type: "technical",
+      source: "https://auth0.com/blog/refresh-tokens-2024",
+      summary: "Best practice: Use short-lived access tokens (15min) + refresh tokens",
+      relevance: "Current implementation uses 24h tokens - should refactor",
+      timestamp: new Date().toISOString()
+    },
+    
+    // 💼 BUSINESS RESEARCH (type: "business")
+    {
+      type: "business",
+      marketAnalysis: "JWT authentication market dominated by Auth0, Firebase Auth, AWS Cognito",
+      userNeeds: "Developers need secure, easy-to-implement authentication without vendor lock-in",
+      businessValue: "In-house JWT reduces monthly costs from $100+ (Auth0) to ~$10 (server costs)",
+      competitorInsights: "Auth0 charges per MAU, Firebase free tier limited, AWS complex pricing",
+      roi: "Saves $1,080/year for small apps, more at scale. Development time: 2-3 days",
+      adoptionBarriers: "Team needs JWT expertise, security responsibility shifts to us",
+      opportunities: "Can offer as feature to clients, differentiate from competitors using expensive SaaS",
+      timestamp: new Date().toISOString()
+    }
+  ]
+})
+```
+
+---
+
+## 📝 RESEARCH FORMAT
+
+### 🔧 **Technical Research Format** (Required)
+
+**Each technical research entry MUST include:**
+- **type:** "technical" (REQUIRED)
+- **source:** Where you found this information (URL, file path, documentation)
+- **summary:** Key findings (2-3 sentences)
+- **relevance:** How this applies to the task
+- **codeSnippet:** (optional) Relevant code examples
+- **timestamp:** When research was conducted (ISO string)
+
+### 💼 **Business Research Format** (Required)
+
+**Each business research entry MUST include:**
+- **type:** "business" (REQUIRED)
+- **marketAnalysis:** Current market landscape, competitors, positioning
+- **userNeeds:** What users need, pain points, expectations
+- **businessValue:** Cost savings, revenue potential, strategic value
+- **competitorInsights:** How competitors solve this, pricing, gaps
+- **roi:** Return on investment analysis, time/cost trade-offs
+- **adoptionBarriers:** What prevents adoption, risks, concerns
+- **opportunities:** Market opportunities, differentiation, growth potential
+- **timestamp:** When research was conducted (ISO string)
+
+---
+
+## 🚫 INVALID RESEARCH
+
+**These DO NOT count as research:**
+- ❌ "I know from experience..." (no source)
+- ❌ "Common practice is..." (no verification)
+- ❌ "Should use X library" (no version/comparison)
+- ❌ Outdated information (pre-2024)
+- ❌ No documented sources
+- ❌ **Missing business research** (only technical)
+- ❌ **Missing technical research** (only business)
+- ❌ **Wrong type field** (must be "technical" or "business")
+
+---
+
+## ✅ VALID RESEARCH EXAMPLE - COMPLETE
+
+**Example: Adding API Rate Limiting Feature**
+
+```typescript
+research: [
+  // 🔧 TECHNICAL RESEARCH (3 entries minimum)
+  {
+    type: "technical",
+    source: "Local: extension/src/api/api-client.ts",
+    summary: "Project uses axios v1.6.0 with retry logic (3 attempts, exponential backoff)",
+    relevance: "New API endpoints should follow same pattern",
+    codeSnippet: "const axiosInstance = axios.create({ timeout: 10000 });\naxiosRetry(axiosInstance, { retries: 3 });",
+    timestamp: "2025-10-12T17:30:00Z"
+  },
+  {
+    type: "technical",
+    source: "https://github.com/axios/axios/releases/tag/v1.7.0",
+    summary: "Axios v1.7.0 released Oct 2024 with improved TypeScript types and security fixes",
+    relevance: "Should update from v1.6.0 to v1.7.0",
+    timestamp: "2025-10-12T17:31:00Z"
+  },
+  {
+    type: "technical",
+    source: "https://www.npmjs.com/package/express-rate-limit",
+    summary: "express-rate-limit v7.1.5 is industry standard, 15M weekly downloads, actively maintained",
+    relevance: "Best choice for rate limiting, battle-tested, TypeScript support",
+    codeSnippet: "const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });",
+    timestamp: "2025-10-12T17:33:00Z"
+  },
+  
+  // 💼 BUSINESS RESEARCH (1-2 entries minimum)
+  {
+    type: "business",
+    marketAnalysis: "Rate limiting is standard in 98% of SaaS APIs. Competitors (Stripe, Twilio, GitHub) all use tiered limits: free (60 req/hr), pro (1000 req/hr), enterprise (custom).",
+    userNeeds: "Users need protection from accidental infinite loops and malicious attacks. Developers want clear limit feedback via headers (X-RateLimit-Remaining).",
+    businessValue: "Prevents server overload (saves $500/mo in infrastructure). Enables tiered pricing model (free vs paid plans). Industry standard = professional credibility.",
+    competitorInsights: "Stripe: 100 req/sec for live, 25 req/sec for test. GitHub: 5000 req/hr authenticated, 60 req/hr unauthenticated. Twilio: $0.0075 per API call after free tier.",
+    roi: "Implementation: 4 hours ($200). Savings: $500/mo (prevented DDoS/abuse) + $300/mo (tiered plan revenue). ROI: 300% first month.",
+    adoptionBarriers: "Users may hit limits during testing. Need clear error messages and documentation. Must monitor and adjust limits based on real usage.",
+    opportunities: "Differentiate with generous free tier (vs competitors). Offer real-time limit dashboard. Partner with CI/CD tools that need high limits.",
+    timestamp: "2025-10-12T17:35:00Z"
+  }
+]
+```
+
+**✅ This example includes BOTH research types with proper fields!**
+
+---
+
+## 🎯 WHEN TO CONDUCT RESEARCH
+
+**ALWAYS research BEFORE:**
+- ✅ Adding new dependencies
+- ✅ Implementing new features
+- ✅ Choosing libraries/frameworks
+- ✅ Architectural decisions
+- ✅ Security implementations
+- ✅ Performance optimizations
+
+---
+
+## ⚡ RESEARCH WORKFLOW
+
+```
+1. User requests feature
+2. Create task via MCP
+3. STOP - Conduct research (15-30 minutes)
+4. Document findings via MCP
+5. Ask clarifying questions if needed
+6. Wait for answers
+7. NOW you can start coding
+```
+
+---
+
+## 🔒 ENFORCEMENT
+
+**Research is NOT optional. It is MANDATORY.**
+
+**Benefits:**
+- ✅ Better technical decisions
+- ✅ Avoids outdated patterns
+- ✅ Catches security issues early
+- ✅ Uses best libraries
+- ✅ Follows project conventions
+- ✅ **Business-aware** development
+- ✅ **Market-driven** solutions
+
+**Without research:**
+- ❌ Risk of security vulnerabilities
+- ❌ Using deprecated libraries
+- ❌ Inconsistent code patterns
+- ❌ Poor architecture choices
+- ❌ **Missed market opportunities**
+- ❌ **Poor business decisions**
+
+---
+
+## ⚠️ CRITICAL RESEARCH REQUIREMENTS
+
+**EVERY task MUST have:**
+- ✅ **Minimum 2-5 Technical Research entries** with proper fields
+- ✅ **Minimum 1-2 Business Research entries** with proper fields
+- ✅ **Both types included** - no exceptions
+- ✅ **Proper type field** ("technical" or "business")
+- ✅ **All required fields** filled in
+- ✅ **Current information** (2024-2025)
+- ✅ **Verified sources** (URLs, file paths)
+
+**If research is incomplete → Task is INVALID and must be redone.**
+
+---
+
+## 📊 RESEARCH QUALITY CHECKLIST
+
+Before moving to implementation, verify:
+
+- [ ] **Local codebase searched** for existing patterns
+- [ ] **Technical research completed** (2-5 entries)
+- [ ] **Business research completed** (1-2 entries)
+- [ ] **All technical entries** have: type, source, summary, relevance, timestamp
+- [ ] **All business entries** have: type, marketAnalysis, userNeeds, businessValue, competitorInsights, roi, adoptionBarriers, opportunities, timestamp
+- [ ] **Internet research** used web_search tool
+- [ ] **Current information** (2024-2025)
+- [ ] **Research documented** via MCP update_task
+
+**Only proceed to coding when ALL boxes are checked!**
+
+---
+
+**RESEARCH FIRST. CODE SECOND. ALWAYS.**
+
+**BOTH TECHNICAL AND BUSINESS RESEARCH. NO EXCEPTIONS.**

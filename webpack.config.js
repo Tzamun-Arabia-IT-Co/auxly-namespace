@@ -44,29 +44,29 @@ const extensionConfig = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: path.resolve(__dirname, '../mcp-server/dist'),
+          from: path.resolve(__dirname, 'mcp-server/dist'),
           to: path.resolve(__dirname, 'dist/mcp-server'),
           noErrorOnMissing: false
         },
         {
-          from: path.resolve(__dirname, '../mcp-server/node_modules'),
+          from: path.resolve(__dirname, 'mcp-server/node_modules'),
           to: path.resolve(__dirname, 'dist/mcp-server/node_modules'),
           noErrorOnMissing: false
         },
         {
-          from: path.resolve(__dirname, '../mcp-server/package.json'),
+          from: path.resolve(__dirname, 'mcp-server/package.json'),
           to: path.resolve(__dirname, 'dist/mcp-server/package.json'),
-          noErrorOnMissing: false
+          noErrorOnMissing: true
         },
         {
-          from: path.resolve(__dirname, '../mcp-server/start-with-restart.js'),
+          from: path.resolve(__dirname, 'mcp-server/start-with-restart.js'),
           to: path.resolve(__dirname, 'dist/mcp-server/start-with-restart.js'),
-          noErrorOnMissing: false
+          noErrorOnMissing: true
         },
         {
-          from: path.resolve(__dirname, '../mcp-server/wrapper-with-restart.js'),
+          from: path.resolve(__dirname, 'mcp-server/wrapper-with-restart.js'),
           to: path.resolve(__dirname, 'dist/mcp-server/wrapper-with-restart.js'),
-          noErrorOnMissing: false
+          noErrorOnMissing: true
         },
         {
           from: path.resolve(__dirname, 'Auxly-icon.png'),
@@ -76,6 +76,11 @@ const extensionConfig = {
         {
           from: path.resolve(__dirname, 'Auxly-Icon-Large.png'),
           to: path.resolve(__dirname, 'dist/Auxly-Icon-Large.png'),
+          noErrorOnMissing: false
+        },
+        {
+          from: path.resolve(__dirname, 'resources'),
+          to: path.resolve(__dirname, 'dist/resources'),
           noErrorOnMissing: false
         }
       ]
