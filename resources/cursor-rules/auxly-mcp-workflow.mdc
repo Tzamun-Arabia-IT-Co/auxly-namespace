@@ -1,0 +1,335 @@
+---
+description: Auxly MCP Workflow - AI must ALWAYS use MCP tools for tasks, research, questions, file logging, and approvals
+alwaysApply: true
+---
+
+# 🤖 Auxly MCP Workflow - AI Agent Instructions
+
+**MANDATORY WORKFLOW - ALWAYS FOLLOW**  
+**Version:** 5.0.9+  
+**Last Updated:** October 14, 2025
+
+---
+
+## 🚨 **CRITICAL: Known Storage Sync Issue**
+
+**⚠️ IMPORTANT: MCP Storage Location Mismatch**
+
+**Problem:**
+- **MCP Server** writes tasks to: `%USERPROFILE%\.auxly\tasks.json` (User home directory)
+- **Extension UI** reads tasks from: `{workspace}\.auxly\tasks.json` (Workspace directory)
+- **Result:** Tasks created via MCP may not appear immediately in Extension UI
+
+**Solution for Users:**
+After creating tasks via MCP, reload Cursor window:
+1. Press `Ctrl+Shift+P`
+2. Type: "Developer: Reload Window"
+3. Press Enter
+
+**OR run refresh command:**
+1. Press `Ctrl+Shift+P`
+2. Type: "Auxly: Refresh Tasks"
+3. Press Enter
+
+**This issue will be fixed in a future update with automatic storage synchronization.**
+
+---
+
+## 🎯 CORE RULE: ALWAYS USE MCP TOOLS
+
+**For EVERY user request, you MUST:**
+
+1. **CREATE TASK via MCP first**
+2. **CONDUCT RESEARCH** (mandatory, no exceptions)
+3. **ASK QUESTIONS via MCP** if anything unclear
+4. **LOG ALL FILE CHANGES** to the task
+5. **REQUEST APPROVAL via MCP** for significant changes
+6. **UPDATE TASK STATUS** as you work
+
+---
+
+## 📋 STEP 1: CREATE TASK (ALWAYS FIRST)
+
+```typescript
+mcp_auxly_auxly_create_task({
+  title: "Clear task title",
+  description: "Comprehensive description with acceptance criteria",
+  priority: "high", // low/medium/high/critical
+  tags: ["feature", "backend"]
+})
+```
+
+**NEVER start work without creating a task first.**
+
+---
+
+## 🔬 STEP 2: MANDATORY DUAL RESEARCH
+
+**⚠️ CRITICAL: EVERY task MUST have BOTH Technical AND Business research!**
+
+**REQUIRED for EVERY task before coding:**
+
+1. ✅ Search local codebase for patterns
+2. ✅ Search internet for 2025 best practices
+3. ✅ Check library versions and security
+4. ✅ **Conduct Technical Research** (2-5 entries minimum)
+5. ✅ **Conduct Business Research** (1-2 entries minimum)
+6. ✅ Document BOTH research types in task
+
+**Add DUAL research to task:**
+```typescript
+mcp_auxly_auxly_update_task({
+  taskId: "X",
+  research: [
+    // 🔧 TECHNICAL RESEARCH (type: "technical")
+    {
+      type: "technical",
+  source: "Local: src/api/api-client.ts",
+      summary: "Project uses axios v1.6.0 with retry logic",
+      relevance: "New endpoints should follow same pattern",
+      codeSnippet: "const instance = axios.create({ timeout: 10000 });",
+      timestamp: new Date().toISOString()
+    },
+    {
+      type: "technical",
+      source: "https://github.com/axios/axios/releases/tag/v1.7.0",
+      summary: "Axios v1.7.0 released Oct 2024 with security fixes",
+      relevance: "Should update from v1.6.0 to v1.7.0",
+      timestamp: new Date().toISOString()
+    },
+    
+    // 💼 BUSINESS RESEARCH (type: "business")
+    {
+      type: "business",
+      marketAnalysis: "99% of modern apps use API rate limiting to prevent abuse",
+      userNeeds: "Users need protection from accidental overuse and attacks",
+      businessValue: "Prevents $500/mo in infrastructure costs from abuse",
+      competitorInsights: "Stripe uses 100 req/sec, GitHub uses 5000 req/hr",
+      roi: "Implementation: 4 hours. Savings: $500/mo. ROI: 300%",
+      adoptionBarriers: "May impact power users, need clear documentation",
+      opportunities: "Offer tiered pricing based on rate limits",
+      timestamp: new Date().toISOString()
+    }
+  ]
+})
+```
+
+**See `.cursor/rules/auxly-mcp-research-mandatory.mdc` for complete field definitions.**
+
+---
+
+## ❓ STEP 3: ASK QUESTIONS VIA MCP
+
+**⚠️ CRITICAL: ALL QUESTIONS MUST USE MCP - NO CHAT QUESTIONS!**
+
+**If ANYTHING is unclear, ASK immediately via MCP:**
+
+```typescript
+mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Clear question here?",
+  category: "TECHNICAL DECISION", // or CLARIFICATION, APPROVAL REQUEST, UX DECISION, BUSINESS DECISION
+  priority: "high",
+  context: "Why I'm asking this... What you researched... Your recommendation...",
+  options: [
+    { label: "Option A (your recommendation)", recommended: true },
+    { label: "Option B (alternative)" },
+    { label: "Option C (alternative)" }
+  ]
+})
+```
+
+**The user will see a popup with sound alert. They'll answer and paste prompt in chat.**
+
+**🚫 NEVER ask questions directly in chat!** Use MCP for ALL questions.
+
+**Categories:**
+- `TECHNICAL DECISION` - Tech choices, libraries, architecture
+- `CLARIFICATION` - Unclear requirements, ambiguity
+- `APPROVAL REQUEST` - Significant changes requiring approval
+- `UX DECISION` - Design, interface, user experience
+- `BUSINESS DECISION` - Market, pricing, strategy
+
+---
+
+## 📝 STEP 4: LOG ALL FILE CHANGES
+
+**MANDATORY: Log every file you touch:**
+
+```typescript
+mcp_auxly_auxly_update_task({
+  taskId: "X",
+  changes: [{
+    filePath: "src/file.ts",
+    changeType: "created", // or modified/deleted
+    description: "What changed and why",
+    linesAdded: 100,
+    linesDeleted: 10,
+    timestamp: new Date().toISOString()
+  }]
+})
+```
+
+**Log changes:**
+- After creating files
+- After modifying files
+- After deleting files
+- After refactoring
+
+---
+
+## 🔐 STEP 5: REQUEST APPROVAL FOR SIGNIFICANT CHANGES
+
+**ALWAYS request approval for:**
+- Database schema changes
+- API contract changes
+- Breaking changes
+- Security changes
+- Architecture modifications
+
+```typescript
+mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Approve: Add 'email' field to users table?",
+  category: "APPROVAL REQUEST",
+  priority: "critical",
+  context: "This change requires database migration...",
+  options: [
+    { label: "✅ Approve", recommended: true },
+    { label: "❌ Reject" }
+  ]
+})
+```
+
+**DO NOT proceed until approved.**
+
+---
+
+## 📊 STEP 6: UPDATE TASK STATUS
+
+**⚠️ CRITICAL: ALWAYS UPDATE `aiWorkingOn` FLAG**
+
+```typescript
+// Starting work - SET aiWorkingOn: true
+mcp_auxly_auxly_update_task({
+  taskId: "X",
+  status: "in_progress",
+  aiWorkingOn: true  // ✅ REQUIRED when starting work
+})
+
+// Ready for review - SET aiWorkingOn: false
+mcp_auxly_auxly_update_task({
+  taskId: "X",
+  status: "review",
+  aiWorkingOn: false  // ✅ REQUIRED when stopping work
+})
+
+// After approval - SET aiWorkingOn: false
+mcp_auxly_auxly_update_task({
+  taskId: "X",
+  status: "done",
+  aiWorkingOn: false  // ✅ REQUIRED when task complete
+})
+
+// Pausing/stopping work - SET aiWorkingOn: false
+mcp_auxly_auxly_update_task({
+  taskId: "X",
+  aiWorkingOn: false  // ✅ REQUIRED when stopping/pausing
+})
+```
+
+**📋 AI Working Status Rules:**
+- ✅ **SET `aiWorkingOn: true`** → When starting work on a task
+- ✅ **SET `aiWorkingOn: false`** → When finished, pausing, or moving to review/done
+- ✅ **Visual Indicator** → Tasks with `aiWorkingOn: true` show animated gradient border
+- ✅ **Only ONE task** should have `aiWorkingOn: true` at a time
+
+---
+
+## 🚫 FORBIDDEN ACTIONS
+
+**NEVER:**
+- ❌ Code without creating a task
+- ❌ Skip research phase
+- ❌ Assume instead of asking
+- ❌ Make significant changes without approval
+- ❌ Forget to log file changes
+
+---
+
+## ✅ EXAMPLE WORKFLOW
+
+```
+User: "Add user authentication"
+
+1. Create task via MCP
+2. Research: OAuth 2.0, JWT, bcrypt, best practices
+3. Ask: "Should we use OAuth or traditional login?"
+4. Wait for answer
+5. Start coding, update status to "in_progress"
+6. Log file changes as you work
+7. Request approval: "Add password hash field to database?"
+8. After approval, implement
+9. Mark as "review"
+10. After user approval, mark as "done"
+```
+
+---
+
+## 📚 AVAILABLE MCP TOOLS
+
+- `mcp_auxly_auxly_create_task` - Create tasks
+- `mcp_auxly_auxly_update_task` - Update tasks (research, changes, comments)
+- `mcp_auxly_auxly_ask_question` - **Ask user questions (MANDATORY for ALL questions)**
+- `mcp_auxly_auxly_list_tasks` - List all tasks
+- `mcp_auxly_auxly_get_task` - Get task details
+- `mcp_auxly_auxly_delete_task` - Delete tasks
+
+---
+
+## 🚨 CRITICAL ENFORCEMENT RULES
+
+| Rule | Status | Penalty |
+|------|--------|---------|
+| **Create task via MCP first** | MANDATORY | Task invalid without MCP task |
+| **Conduct BOTH research types** | MANDATORY | Task invalid without dual research |
+| **Technical research (2-5 entries)** | MANDATORY | Task invalid if missing |
+| **Business research (1-2 entries)** | MANDATORY | Task invalid if missing |
+| **ALL questions via MCP** | MANDATORY | Chat questions = workflow violation |
+| **Log ALL file changes** | MANDATORY | Changes undocumented = incomplete work |
+| **Request approval for significant changes** | MANDATORY | Unapproved changes = blocked |
+| **Update aiWorkingOn flag** | MANDATORY | Status tracking broken without it |
+
+---
+
+## 🔗 RELATED PROTOCOLS
+
+**For complete details, see:**
+- `.cursor/rules/auxly-mcp-research-mandatory.mdc` - Dual research protocol
+- `.cursor/rules/auxly-mcp-questions-mandatory.mdc` - MCP questions enforcement
+- `.cursor/rules/auxly-mcp-file-change-logging.mdc` - File change logging
+- `.cursor/rules/auxly-mcp-approval-required.mdc` - Approval workflow
+- `.cursor/rules/auxly-mcp-auto-notification.mdc` - Question answer polling
+
+---
+
+## ⚠️ WORKFLOW VIOLATIONS
+
+**If you do ANY of these, you are violating the workflow:**
+- ❌ Starting work without creating MCP task
+- ❌ Skipping research phase
+- ❌ Only doing technical research (missing business)
+- ❌ Only doing business research (missing technical)
+- ❌ **Asking questions in chat instead of MCP**
+- ❌ Making assumptions instead of asking questions
+- ❌ Not logging file changes
+- ❌ Making significant changes without approval
+- ❌ Not updating task status
+
+**ALL of these are MANDATORY. NO EXCEPTIONS.**
+
+---
+
+**THIS WORKFLOW IS MANDATORY. FOLLOW IT 100% OF THE TIME.**
+
+**DUAL RESEARCH + MCP QUESTIONS + FILE LOGGING = COMPLETE WORKFLOW**

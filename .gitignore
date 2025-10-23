@@ -1,0 +1,29 @@
+# Node modules
+node_modules/
+
+# Build outputs
+*.vsix
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Auxly internal data (auto-added by extension)
+.auxly/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# Temporary files
+*.tmp
+*.temp
+

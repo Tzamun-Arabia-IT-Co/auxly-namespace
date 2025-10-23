@@ -1,0 +1,332 @@
+---
+description: File Change Logging - AI must ALWAYS log every file creation, modification, and deletion to task via MCP with descriptions
+alwaysApply: true
+---
+
+# 📝 File Change Logging - Track All Code Modifications
+
+**MANDATORY: LOG EVERY FILE YOU CREATE, MODIFY, OR DELETE**
+
+---
+
+## ⚠️ ABSOLUTE RULE
+
+**EVERY file change MUST be logged to the task via MCP.**
+
+**This provides:**
+- ✅ Complete audit trail
+- ✅ Easy code review
+- ✅ Understanding of what changed
+- ✅ Rollback capability
+
+---
+
+## 📋 WHAT TO LOG
+
+### **1. File Created** ✅
+```typescript
+mcp_auxly_auxly_update_task({
+  taskId: "X",
+  changes: [{
+    filePath: "src/auth/oauth.ts",
+    changeType: "created",
+    description: "Added OAuth 2.0 authentication service with Google/GitHub providers",
+    linesAdded: 245,
+    linesDeleted: 0,
+    timestamp: new Date().toISOString()
+  }]
+})
+```
+
+### **2. File Modified** ✅
+```typescript
+mcp_auxly_auxly_update_task({
+  taskId: "X",
+  changes: [{
+    filePath: "src/api/routes.ts",
+    changeType: "modified",
+    description: "Added /auth/oauth/callback endpoint for OAuth flow",
+    linesAdded: 34,
+    linesDeleted: 2,
+    timestamp: new Date().toISOString()
+  }]
+})
+```
+
+### **3. File Deleted** ✅
+```typescript
+mcp_auxly_auxly_update_task({
+  taskId: "X",
+  changes: [{
+    filePath: "src/auth/legacy-auth.ts",
+    changeType: "deleted",
+    description: "Removed deprecated legacy authentication (replaced by OAuth)",
+    linesAdded: 0,
+    linesDeleted: 178,
+    timestamp: new Date().toISOString()
+  }]
+})
+```
+
+---
+
+## 🎯 WHEN TO LOG
+
+**Log changes:**
+- ✅ **Immediately after creating a file**
+- ✅ **After modifying a file**
+- ✅ **After deleting a file**
+- ✅ **After refactoring**
+- ✅ **After renaming/moving files**
+
+**Batch logging:**
+If you modify multiple files, log them all at once:
+
+```typescript
+mcp_auxly_auxly_update_task({
+  taskId: "X",
+  changes: [
+    {
+      filePath: "src/auth/oauth.ts",
+      changeType: "created",
+      description: "OAuth service implementation",
+      linesAdded: 245,
+      linesDeleted: 0,
+      timestamp: new Date().toISOString()
+    },
+    {
+      filePath: "src/api/routes.ts",
+      changeType: "modified",
+      description: "Added OAuth endpoints",
+      linesAdded: 34,
+      linesDeleted: 2,
+      timestamp: new Date().toISOString()
+    },
+    {
+      filePath: "src/types/auth.ts",
+      changeType: "modified",
+      description: "Added OAuth provider types",
+      linesAdded: 15,
+      linesDeleted: 0,
+      timestamp: new Date().toISOString()
+    }
+  ]
+})
+```
+
+---
+
+## 📊 CHANGE DESCRIPTION FORMAT
+
+**Every change description should include:**
+
+1. **What changed:** Clear summary of modifications
+2. **Why it changed:** Purpose/reason for the change
+3. **Impact:** What this affects
+
+**GOOD descriptions:**
+- ✅ "Added JWT token validation middleware with 15-minute expiry"
+- ✅ "Refactored database queries to use prepared statements (SQL injection prevention)"
+- ✅ "Fixed memory leak in WebSocket connection handler"
+
+**BAD descriptions:**
+- ❌ "Updated file" (too vague)
+- ❌ "Changes" (no information)
+- ❌ "Fixed stuff" (unclear)
+
+---
+
+## 🔍 EXAMPLE: COMPLETE FILE CHANGE WORKFLOW
+
+```typescript
+// User: "Add user profile editing feature"
+
+// 1. Create task
+const task = await mcp_auxly_auxly_create_task({
+  title: "Add user profile editing",
+  priority: "medium"
+});
+
+// 2. Start work
+await mcp_auxly_auxly_update_task({
+  taskId: task.id,
+  status: "in_progress"
+});
+
+// 3. Create new file
+// (write src/api/profile.ts)
+
+// 4. LOG IT IMMEDIATELY
+await mcp_auxly_auxly_update_task({
+  taskId: task.id,
+  changes: [{
+    filePath: "src/api/profile.ts",
+    changeType: "created",
+    description: "Created profile API endpoints: GET /profile, PUT /profile, PATCH /profile/avatar",
+    linesAdded: 156,
+    linesDeleted: 0,
+    timestamp: new Date().toISOString()
+  }]
+});
+
+// 5. Modify existing file
+// (update src/api/routes.ts to add profile routes)
+
+// 6. LOG IT
+await mcp_auxly_auxly_update_task({
+  taskId: task.id,
+  changes: [{
+    filePath: "src/api/routes.ts",
+    changeType: "modified",
+    description: "Registered profile routes under /api/profile",
+    linesAdded: 3,
+    linesDeleted: 0,
+    timestamp: new Date().toISOString()
+  }]
+});
+
+// 7. Add types
+// (update src/types/user.ts)
+
+// 8. LOG IT
+await mcp_auxly_auxly_update_task({
+  taskId: task.id,
+  changes: [{
+    filePath: "src/types/user.ts",
+    changeType: "modified",
+    description: "Added ProfileUpdateRequest and ProfileResponse types",
+    linesAdded: 12,
+    linesDeleted: 1,
+    timestamp: new Date().toISOString()
+  }]
+});
+
+// 9. Delete old file
+// (remove src/api/legacy-profile.ts)
+
+// 10. LOG IT
+await mcp_auxly_auxly_update_task({
+  taskId: task.id,
+  changes: [{
+    filePath: "src/api/legacy-profile.ts",
+    changeType: "deleted",
+    description: "Removed deprecated profile endpoint (replaced with new implementation)",
+    linesAdded: 0,
+    linesDeleted: 89,
+    timestamp: new Date().toISOString()
+  }]
+});
+
+// 11. Mark for review
+await mcp_auxly_auxly_update_task({
+  taskId: task.id,
+  status: "review"
+});
+```
+
+---
+
+## 📈 BENEFITS OF FILE CHANGE LOGGING
+
+**For Users:**
+- ✅ See exactly what changed
+- ✅ Review code modifications easily
+- ✅ Understand scope of changes
+- ✅ Track project evolution
+
+**For AI:**
+- ✅ Document your work
+- ✅ Avoid duplicate changes
+- ✅ Track dependencies
+- ✅ Enable better collaboration
+
+**For Projects:**
+- ✅ Complete audit trail
+- ✅ Debugging assistance
+- ✅ Code review preparation
+- ✅ Historical record
+
+---
+
+## 🚫 WHAT NOT TO LOG
+
+**Don't log:**
+- ❌ Temporary test files
+- ❌ Build artifacts (dist/, node_modules/)
+- ❌ IDE settings (.vscode/, .idea/)
+- ❌ Log files
+- ❌ Cache files
+
+**DO log:**
+- ✅ Source code files (.ts, .js, .tsx, .jsx)
+- ✅ Configuration files (package.json, tsconfig.json)
+- ✅ Database migrations
+- ✅ API routes
+- ✅ Type definitions
+- ✅ Tests
+- ✅ Documentation
+
+---
+
+## 📝 SUMMARY LOGGING
+
+**At end of task, you can add a summary:**
+
+```typescript
+await mcp_auxly_auxly_update_task({
+  taskId: task.id,
+  comments: [{
+    author: "ai",
+    authorName: "AI Agent",
+    content: `✅ Task completed!
+
+**Files Changed Summary:**
+- Created: 3 files (401 lines)
+- Modified: 5 files (+67, -12 lines)
+- Deleted: 1 file (89 lines)
+
+**Key Changes:**
+1. New OAuth authentication system
+2. Refactored user profile API
+3. Added TypeScript types
+4. Removed legacy code
+
+**Testing:** All tests passing ✅
+**Ready for review** 🎉`,
+    type: "comment",
+    createdAt: new Date().toISOString()
+  }]
+});
+```
+
+---
+
+## ✅ FILE CHANGE LOGGING CHECKLIST
+
+Before marking task as "review":
+
+- ✅ All created files logged
+- ✅ All modified files logged
+- ✅ All deleted files logged
+- ✅ Descriptions are clear and detailed
+- ✅ Line counts included
+- ✅ Timestamps accurate
+
+---
+
+## 🎯 KEY TAKEAWAY
+
+**LOG EVERY CHANGE. NO EXCEPTIONS.**
+
+**Pattern:**
+1. Create/modify/delete file
+2. Immediately log via MCP
+3. Include clear description
+4. Repeat for all files
+
+**This creates transparency and trust.** 🎉
+
+---
+
+**FILE CHANGES WITHOUT LOGGING = INVISIBLE CHANGES = BAD** ❌
+**FILE CHANGES WITH LOGGING = VISIBLE CHANGES = GOOD** ✅

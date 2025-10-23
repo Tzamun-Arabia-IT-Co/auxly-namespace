@@ -1,0 +1,127 @@
+---
+description: Todo2 task overview for Cursor AI awareness - provides real-time context of current project tasks, priorities, and progress
+alwaysApply: true
+---
+
+# Todo2 Project Context
+
+*Last updated: 10/11/2025, 03:31 PM*
+*Generated automatically from .todo2/state.todo2.json*
+
+## Current Task Overview (Last 20 Tasks - Newest First)
+
+### T-11: Investigate why MCP server is not appearing in Cursor
+- **Status:** Done ✅ | **Priority:** critical 🔴 | **Created:** 10/11/2025, 03:27 PM | **Updated:** 10/11/2025, 03:31 PM
+- **Tags:** #mcp #debugging #configuration #investigation
+- **Dependencies:** None
+- **Comments**: 1 research_with_links, 1 result, 0 notes, 0 manualsetup
+- **Status:** Done
+- **Key Insight:** 🎯 Task Completed Successfully ✅ Outcome: Successfully identified the root cause of why the MCP server was not appearing in Cursor's Tools & MCP section. What Was Accomplished: 1. Root Cause Identified: - Issue: MCP server configuration existed in mcp-server/cursor-config.json but was not in the ...
+
+### T-12: Fix MCP server configuration and register with Cursor
+- **Status:** Todo 📋 | **Priority:** critical 🔴 | **Created:** 10/11/2025, 03:27 PM | **Updated:** 10/11/2025, 03:28 PM
+- **Tags:** #mcp #configuration #cursor #setup
+- **Dependencies:** T-11
+- **Comments**: 0 research_with_links, 0 result, 0 notes, 0 manualsetup
+- **Status:** Todo
+- **Key Insight:** *[No key insight available]*
+
+### T-13: Verify MCP integration and test all todo tools
+- **Status:** Todo 📋 | **Priority:** high 🟠 | **Created:** 10/11/2025, 03:27 PM | **Updated:** 10/11/2025, 03:28 PM
+- **Tags:** #testing #verification #mcp #integration
+- **Dependencies:** T-12
+- **Comments**: 0 research_with_links, 0 result, 0 notes, 0 manualsetup
+- **Status:** Todo
+- **Key Insight:** *[No key insight available]*
+
+### T-8: Verify project health and install dependencies
+- **Status:** Done ✅ | **Priority:** high 🟠 | **Created:** 10/11/2025, 01:13 PM | **Updated:** 10/11/2025, 01:17 PM
+- **Tags:** #setup #dependencies #verification
+- **Dependencies:** None
+- **Comments**: 1 research_with_links, 1 result, 0 notes, 0 manualsetup
+- **Status:** Done
+- **Key Insight:** Task Completed Successfully ✅ Outcome: All project dependencies have been successfully installed and the workspace is healthy. What Was Accomplished: 1. ✅ Identified Issue: Invalid version error due to corrupted node_modules from previous installation 2. ✅ Cleaned Workspace: Removed node_modules ...
+
+### T-9: Build the VSCode extension for testing
+- **Status:** Done ✅ | **Priority:** high 🟠 | **Created:** 10/11/2025, 01:13 PM | **Updated:** 10/11/2025, 01:18 PM
+- **Tags:** #build #extension #compilation
+- **Dependencies:** T-8
+- **Comments**: 1 research_with_links, 1 result, 0 notes, 0 manualsetup
+- **Status:** Done
+- **Key Insight:** Task Completed Successfully ✅ Outcome: Extension compiled successfully and ready for testing in Cursor. What Was Accomplished: 1. ✅ Webpack Build Completed: Successfully compiled TypeScript to JavaScript bundle 2. ✅ Output Generated: Created extension/dist/extension.js (107 KiB) 3. ✅ All Modules ...
+
+### T-10: Guide user on testing extension in Cursor
+- **Status:** Done ✅ | **Priority:** high 🟠 | **Created:** 10/11/2025, 01:13 PM | **Updated:** 10/11/2025, 01:19 PM
+- **Tags:** #testing #documentation #user-guidance
+- **Dependencies:** T-9
+- **Comments**: 1 research_with_links, 1 result, 0 notes, 0 manualsetup
+- **Status:** Done
+- **Key Insight:** Task Completed Successfully ✅ Outcome: Complete testing guide provided for Auxly extension in Cursor. 🧪 How to Test the Extension in Cursor Method 1: Using F5 Debug Launch (Recommended) 1. Open Extension Folder: - In Cursor, open the extension folder (not the root folder) - File → Open Folder → ...
+
+### T-6: Diagnose and research NPM workspace symlink failure on Windows
+- **Status:** Done ✅ | **Priority:** critical 🔴 | **Created:** 10/11/2025, 12:42 PM | **Updated:** 10/11/2025, 12:48 PM
+- **Tags:** #diagnosis #npm #windows #symlink #research
+- **Dependencies:** None
+- **Comments**: 1 research_with_links, 1 result, 2 notes, 0 manualsetup
+- **Status:** Done
+- **Key Insight:** Diagnosis Completed Successfully ✅ Root Cause Identified: Package naming conflict between root package.json (name: "auxly") and extension workspace (name: "auxly"). This caused npm workspaces to fail when trying to create symlinks on Windows with EISDIR error. Key Findings: 1. ✅ Both root and ext...
+
+### T-7: Implement fix for NPM workspace symlink issue
+- **Status:** In Progress ⚡ | **Priority:** critical 🔴 | **Created:** 10/11/2025, 12:42 PM | **Updated:** 10/11/2025, 12:48 PM
+- **Tags:** #fix #npm #implementation #windows
+- **Dependencies:** None
+- **Comments**: 0 research_with_links, 1 result, 0 notes, 0 manualsetup
+- **Status:** In Progress
+- **Key Insight:** Task Completed Successfully ✅ Outcome: Fixed npm workspace configuration to eliminate naming conflicts that were causing EISDIR symlink errors on Windows. What Was Accomplished: 1. ✅ Removed root package name: Root package.json no longer has conflicting "auxly" name 2. ✅ Renamed extension package...
+
+### T-4: Fix backend dev command - nodemon not found
+- **Status:** Done ✅ | **Priority:** high 🟠 | **Created:** 10/11/2025, 12:20 PM | **Updated:** 10/11/2025, 12:21 PM
+- **Tags:** #backend #dependencies #bug-fix
+- **Dependencies:** None
+- **Comments**: 1 research_with_links, 1 result, 1 notes, 0 manualsetup
+- **Status:** Done
+- **Key Insight:** Task Completed Successfully ✅ Outcome: Fixed the nodemon command not found error by updating the backend dev script to use npx. What Was Accomplished: 1. ✅ Diagnosed Issue: nodemon not accessible in PATH due to npm workspaces on Windows 2. ✅ Applied Fix: Updated backend/package.json script from n...
+
+### T-3: Guide user to test VSCode extension and understand project scope
+- **Status:** Done ✅ | **Priority:** high 🟠 | **Created:** 10/11/2025, 12:12 PM | **Updated:** 10/11/2025, 12:19 PM
+- **Tags:** #testing #documentation #analysis #extension
+- **Dependencies:** None
+- **Comments**: 1 research_with_links, 1 result, 2 notes, 0 manualsetup
+- **Status:** Done
+- **Key Insight:** Task Completed Successfully ✅ Outcome: Provided complete guidance for testing the Auxly extension in Cursor, including project scope analysis, setup instructions, and launch configuration. What Was Accomplished: 1. ✅ Project Scope Documented: - AI-powered task management extension for Cursor/VSCo...
+
+### T-2: Check project and install missing packages
+- **Status:** Done ✅ | **Priority:** high 🟠 | **Created:** 10/11/2025, 12:05 PM | **Updated:** 10/11/2025, 12:11 PM
+- **Tags:** #setup #dependencies #installation
+- **Dependencies:** None
+- **Comments**: 1 research_with_links, 1 result, 1 notes, 0 manualsetup
+- **Status:** Done
+- **Key Insight:** Task Completed Successfully ✅ Outcome: All missing npm packages have been successfully installed across the workspace. The project is now ready for development and building. What Was Accomplished: 1. ✅ Identified three package.json files (root, backend, extension) 2. ✅ Ran npm install at root lev...
+
+
+## Task Statistics
+- **Total Tasks:** 11
+- **In Progress:** 1 tasks
+- **Todo:** 2 tasks  
+- **Done:** 8 tasks
+- **High Priority:** 7 tasks
+- **Critical Priority:** 4 tasks
+- **Tasks with Dependencies:** 4 tasks
+
+## Recent Activity
+- T-11: Completed (10/11/2025, 03:31 PM)
+- T-12: Created (10/11/2025, 03:28 PM)
+- T-13: Created (10/11/2025, 03:28 PM)
+- T-8: Completed (10/11/2025, 01:17 PM)
+- T-9: Completed (10/11/2025, 01:18 PM)
+- T-10: Completed (10/11/2025, 01:19 PM)
+- T-6: Completed (10/11/2025, 12:48 PM)
+- T-7: Started work (10/11/2025, 12:48 PM)
+- T-4: Completed (10/11/2025, 12:21 PM)
+- T-3: Completed (10/11/2025, 12:19 PM)
+- T-2: Completed (10/11/2025, 12:11 PM)
+
+## Key Project Context
+This is an implementation of an automated cursor rules system that will maintain real-time awareness of Todo2 task status for enhanced AI assistance. The system monitors task changes and automatically updates this overview file to provide contextual information to Cursor chat.
+
+*This file is automatically maintained by Todo2. Last generation: 10/11/2025, 15:31:47*

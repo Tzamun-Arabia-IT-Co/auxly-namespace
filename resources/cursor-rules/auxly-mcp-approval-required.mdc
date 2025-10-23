@@ -1,0 +1,318 @@
+---
+description: Approval Required Protocol - AI must ALWAYS request user approval via MCP for database, API, security, and architecture changes
+alwaysApply: true
+---
+
+# 🔐 Approval Required - Significant Changes Protocol
+
+**CRITICAL: ALWAYS REQUEST APPROVAL FOR SIGNIFICANT CHANGES**
+
+---
+
+## ⚠️ ABSOLUTE RULE
+
+**DO NOT make significant changes without user approval via MCP.**
+
+**Violating this rule breaks user trust and may cause project damage.**
+
+---
+
+## 🚨 CHANGES REQUIRING APPROVAL
+
+### **ALWAYS Request Approval For:**
+
+#### 1. **Database Changes** 🗄️
+- Adding/removing tables
+- Adding/removing columns
+- Changing data types
+- Index modifications
+- Foreign key constraints
+- Migrations
+
+```typescript
+mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Approve: Add 'refresh_token' column to users table?",
+  category: "APPROVAL REQUEST",
+  priority: "critical",
+  context: "Required for new JWT refresh token flow. VARCHAR(500), nullable. Migration: ALTER TABLE users ADD COLUMN refresh_token VARCHAR(500);",
+  options: [
+    { label: "✅ Approve", recommended: true },
+    { label: "❌ Reject" }
+  ]
+})
+```
+
+---
+
+#### 2. **API Contract Changes** 🔌
+- Breaking endpoint changes
+- New required parameters
+- Response format changes
+- Authentication changes
+- Rate limiting changes
+
+```typescript
+mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Approve: Change /api/users response format (BREAKING CHANGE)?",
+  category: "APPROVAL REQUEST",
+  priority: "critical",
+  context: "Current: { user: {...} }\nNew: { data: {...}, meta: {...} }\nThis will break existing clients.",
+  options: [
+    { label: "✅ Approve (breaking change)" },
+    { label: "❌ Reject" },
+    { label: "🔄 Add new version instead (v2)" }
+  ]
+})
+```
+
+---
+
+#### 3. **Security Changes** 🔒
+- Authentication mechanisms
+- Authorization rules
+- Encryption algorithms
+- Password policies
+- CORS settings
+- API key management
+
+```typescript
+mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Approve: Switch from bcrypt to argon2 for password hashing?",
+  category: "APPROVAL REQUEST",
+  priority: "critical",
+  context: "Argon2 is more secure (winner of Password Hashing Competition). Requires migration of all existing passwords on next login.",
+  options: [
+    { label: "✅ Approve migration" },
+    { label: "❌ Keep bcrypt" },
+    { label: "🤔 Gradual migration only" }
+  ]
+})
+```
+
+---
+
+#### 4. **Architecture Changes** 🏗️
+- Folder structure changes
+- Design pattern changes
+- State management changes
+- Module organization
+- Build system changes
+
+```typescript
+mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Approve: Refactor to monorepo structure?",
+  category: "APPROVAL REQUEST",
+  priority: "high",
+  context: "Move backend/ and extension/ to packages/ with shared dependencies. Improves code sharing but requires build system changes.",
+  options: [
+    { label: "✅ Approve refactor" },
+    { label: "❌ Keep current structure" },
+    { label: "📋 Show detailed migration plan first" }
+  ]
+})
+```
+
+---
+
+#### 5. **Dependency Changes** 📦
+- Major version updates
+- Replacing libraries
+- Adding large dependencies
+- Removing dependencies
+
+```typescript
+mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Approve: Replace axios with native fetch()?",
+  category: "APPROVAL REQUEST",
+  priority: "medium",
+  context: "Removes 50KB dependency. Native fetch has retry support in Node 20+. Requires refactoring 15 files.",
+  options: [
+    { label: "✅ Approve migration" },
+    { label: "❌ Keep axios" },
+    { label: "🔍 Show refactor scope first" }
+  ]
+})
+```
+
+---
+
+#### 6. **Breaking Changes** 💥
+- Removing public APIs
+- Changing function signatures
+- Renaming exported items
+- Changing default behaviors
+
+```typescript
+mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Approve: Remove deprecated createLegacyTask() function?",
+  category: "APPROVAL REQUEST",
+  priority: "medium",
+  context: "Deprecated 6 months ago. Replaced by createTask(). Removing will clean up codebase but may break legacy integrations.",
+  options: [
+    { label: "✅ Approve removal" },
+    { label: "❌ Keep for compatibility" },
+    { label: "📅 Deprecate for 3 more months" }
+  ]
+})
+```
+
+---
+
+## ✅ CHANGES NOT REQUIRING APPROVAL
+
+**These are safe to implement without approval:**
+- ✅ Internal refactoring (no API changes)
+- ✅ Adding new optional features
+- ✅ Bug fixes
+- ✅ Performance improvements (non-breaking)
+- ✅ Adding tests
+- ✅ Improving documentation
+- ✅ Adding comments
+- ✅ Code formatting
+- ✅ Minor dependency updates (patch versions)
+
+---
+
+## 📋 APPROVAL REQUEST FORMAT
+
+**Every approval request MUST include:**
+
+1. **Clear Question:** What exactly needs approval?
+2. **Category:** "APPROVAL REQUEST"
+3. **Priority:** Usually "critical" or "high"
+4. **Context:** Why is this needed? What are the implications?
+5. **Options:**
+   - ✅ Approve (with clear description)
+   - ❌ Reject
+   - 🤔 Other alternatives
+
+---
+
+## 🎯 EXAMPLE: COMPLETE APPROVAL WORKFLOW
+
+```typescript
+// User: "The database is slow, optimize it"
+
+// 1. Create task
+const task = await mcp_auxly_auxly_create_task({
+  title: "Optimize database performance",
+  description: "Add indexes to improve query speed",
+  priority: "high"
+});
+
+// 2. Research
+await mcp_auxly_auxly_update_task({
+  taskId: task.id,
+  research: [{
+    source: "Local: queries slow on users table (>2s)",
+    summary: "Missing index on email field causing full table scans"
+  }]
+});
+
+// 3. Request approval
+await mcp_auxly_auxly_ask_question({
+  taskId: task.id,
+  questionText: "Approve: Add index on users.email column?",
+  category: "APPROVAL REQUEST",
+  priority: "critical",
+  context: "Creating index will speed up queries from 2s to <50ms. Index will use ~5MB storage. Migration command: CREATE INDEX idx_users_email ON users(email);",
+  options: [
+    { label: "✅ Approve index creation", recommended: true },
+    { label: "❌ Reject" },
+    { label: "🔍 Show query plans first" }
+  ]
+});
+
+// 4. Wait for approval
+// (User sees popup, clicks "✅ Approve")
+
+// 5. Check answer
+const updatedTask = await mcp_auxly_auxly_get_task({ taskId: task.id });
+const lastAnswer = updatedTask.qaHistory[updatedTask.qaHistory.length - 1].answer;
+
+if (lastAnswer.selectedOption === "✅ Approve index creation") {
+  // 6. Proceed with implementation
+  await mcp_auxly_auxly_update_task({
+    taskId: task.id,
+    status: "in_progress"
+  });
+  
+  // 7. Implement change
+  // (Create migration, apply index)
+  
+  // 8. Log changes
+  await mcp_auxly_auxly_update_task({
+    taskId: task.id,
+    changes: [{
+      filePath: "backend/migrations/003_add_email_index.sql",
+      changeType: "created",
+      description: "Added index on users.email for query optimization"
+    }]
+  });
+  
+  // 9. Mark for review
+  await mcp_auxly_auxly_update_task({
+    taskId: task.id,
+    status: "review"
+  });
+}
+```
+
+---
+
+## 🚫 WHAT NOT TO DO
+
+**BAD - No approval:**
+```typescript
+// ❌ WRONG: Making breaking change without approval
+await mcp_auxly_auxly_update_task({
+  taskId: "X",
+  status: "in_progress"
+});
+// (implement breaking change immediately)
+```
+
+**GOOD - Request approval first:**
+```typescript
+// ✅ CORRECT: Ask first, wait for approval
+await mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Approve: Breaking change to API?",
+  category: "APPROVAL REQUEST",
+  priority: "critical",
+  options: [
+    { label: "✅ Approve" },
+    { label: "❌ Reject" }
+  ]
+});
+// (wait for user response)
+// (check answer before proceeding)
+```
+
+---
+
+## 🔒 ENFORCEMENT
+
+**Approval requests are MANDATORY for significant changes.**
+
+**Benefits:**
+- ✅ User maintains control
+- ✅ Avoids unwanted changes
+- ✅ Reduces mistakes
+- ✅ Builds trust
+
+**Without approval:**
+- ❌ User loses control
+- ❌ Unexpected breaking changes
+- ❌ Trust is damaged
+- ❌ Work may need to be undone
+
+---
+
+**WHEN IN DOUBT, REQUEST APPROVAL. ALWAYS.**
