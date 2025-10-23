@@ -2,28 +2,40 @@
   "name": "auxly-extension",
   "displayName": "Auxly by Tzamun - AI Task Management",
   "description": "Enhance your development with AI that truly collaborates - featuring AI question popups with sound alerts, FORCED dual research (Technical + Business), and smart approval workflows. Made in Saudi Arabia 🇸🇦 with ❤️ for developers",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "publisher": "tzamun-arabia",
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Other",
     "Programming Languages",
-    "Machine Learning"
+    "Machine Learning",
+    "Other"
   ],
   "keywords": [
-    "task manager",
-    "ai",
     "cursor",
+    "cursor ai",
+    "cursor ide",
+    "cursor extension",
+    "cursor tools",
+    "task manager",
+    "task management",
+    "ai",
+    "ai assistant",
+    "ai collaboration",
     "productivity",
     "rules",
+    "cursor rules",
+    "mcp",
+    "model context protocol",
     "saudi arabia",
     "tzamun",
-    "AI collaboration",
     "dual research",
     "technical research",
-    "business research"
+    "business research",
+    "project management",
+    "workflow",
+    "automation"
   ],
   "icon": "Auxly-Icon-Large.png",
   "repository": {
@@ -37,7 +49,7 @@
   "activationEvents": [
     "onStartupFinished"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "viewsContainers": {
       "activitybar": [

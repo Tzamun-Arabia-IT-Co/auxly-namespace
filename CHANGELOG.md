@@ -1,5 +1,65 @@
 # Changelog
 
+## [0.1.4] - 2025-10-23
+
+### 🔍 Enhanced Cursor Marketplace Visibility
+
+#### 🎯 Improved Discoverability
+- ✅ **Enhanced Keywords** - Added Cursor-specific search terms (cursor, cursor ai, cursor ide, cursor extension, cursor tools)
+- ✅ **MCP Keywords** - Added Model Context Protocol tags for better MCP tool discovery
+- ✅ **Better Categorization** - Optimized category order for Cursor marketplace indexing
+- ✅ **Cursor Compatibility File** - Added `.cursorignore` for Cursor recognition
+- ✅ **Expanded Tags** - Added task management, project management, workflow, automation keywords
+
+#### 📝 What This Means
+- Better search results when searching "cursor" in Cursor marketplace
+- Improved indexing in Cursor's extension search
+- More discoverable for Cursor-specific features (MCP, AI collaboration)
+- Enhanced marketplace SEO for AI-powered task management
+
+---
+
+## [0.1.3] - 2025-10-23
+
+### ✅ Stable Release - Fully Tested
+
+#### 🎉 All Features Verified
+- ✅ **Extension Activation** - Works without errors
+- ✅ **MCP Server Registration** - Registers successfully with Cursor API
+- ✅ **Task Management** - Create, update, delete tasks via MCP tools
+- ✅ **Hold/Unhold Functionality** - AI respects hold status, blocks modifications correctly
+- ✅ **Research Requirements** - Technical + Business research enforced before status changes
+- ✅ **Question System** - Popup notifications with sound alerts working perfectly
+- ✅ **File Change Logging** - Tracks modifications with safety guards
+- ✅ **Comments System** - Multiple comment types (general, technical, business, manual setup)
+- ✅ **Status Workflows** - Complete task lifecycle (todo → in_progress → review → done)
+- ✅ **aiWorkingOn Flag** - Animated gradient borders for active tasks
+
+#### 📦 Package Optimization
+- **Size:** 15.76 MB (optimized, includes bundled MCP server)
+- **Files:** 3,340 files (production-ready)
+- Webpack bundling with production mode
+- Excluded dev dependencies and source maps
+
+#### 🔒 Safety Features
+- Blocks incomplete tasks from moving to review status
+- Prevents modifications to held tasks
+- Validates research completion before status changes
+- Forbidden file patterns for change logging
+
+#### 🎨 User Experience
+- Version display in webview UI (v0.1.2)
+- Clear error messages with actionable guidance
+- Sound alerts for question popups
+- Animated borders for tasks being worked on
+
+#### 🇸🇦 Made in Saudi Arabia with ❤️
+- All features tested and verified
+- Ready for production use
+- Stable marketplace release
+
+---
+
 ## [0.0.16] - 2025-01-22
 
 ### ✨ Enhanced MCP Auto-Configuration & Reliability
