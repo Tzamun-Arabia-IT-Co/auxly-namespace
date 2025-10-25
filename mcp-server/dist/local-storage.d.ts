@@ -35,6 +35,7 @@ export declare class LocalTaskStorage {
         title: string;
         description?: string;
         priority?: 'low' | 'medium' | 'high' | 'critical';
+        category?: string;
         tags?: string[];
     }): Promise<Task>;
     updateTask(taskId: string, updates: Partial<Task>): Promise<Task | null>;

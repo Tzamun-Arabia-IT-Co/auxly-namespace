@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auxly API Testing Interface</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .status-bar {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .card h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #374151;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .response-box {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f9fafb;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .response-box.error {
+      border-left-color: #ef4444;
+      background: #fef2f2;
+      color: #991b1b;
+    }
+
+    .response-box.success {
+      border-left-color: #10b981;
+      background: #f0fdf4;
+      color: #065f46;
+    }
+
+    .token-display {
+      background: #fef3c7;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      word-break: break-all;
+      border: 1px solid #fbbf24;
+    }
+
+    .api-keys-list {
+      margin-top: 15px;
+    }
+
+    .api-key-item {
+      background: #f3f4f6;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .api-key-item button {
+      width: auto;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      background: #ef4444;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      background: #f3f4f6;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      color: #6b7280;
+      width: auto;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .tier-card {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border: 2px solid #e5e7eb;
+    }
+
+    .tier-card h3 {
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .tier-card ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .tier-card li {
+      padding: 5px 0;
+      color: #374151;
+    }
+
+    .tier-card li:before {
+      content: "✓ ";
+      color: #10b981;
+      font-weight: bold;
+      margin-right: 5px;
+    }
+
+    .icon {
+      font-size: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🚀 Auxly API Testing Interface</h1>
+      <p>Test all backend endpoints interactively</p>
+    </header>
+
+    <div class="status-bar">
+      <div class="status-item">
+        <div class="status-indicator"></div>
+        <span>Server: <strong>localhost:7000</strong></span>
+      </div>
+      <div class="status-item" id="authStatus">
+        <span>🔒 Not Authenticated</span>
+      </div>
+      <button onclick="clearStorage()" style="width: auto; padding: 8px 16px;">Clear Storage</button>
+    </div>
+
+    <!-- Authentication Section -->
+    <div class="grid">
+      <div class="card">
+        <h2><span class="icon">🔐</span> Authentication</h2>
+        
+        <div class="tabs">
+          <button class="tab active" onclick="switchAuthTab('register')">Register</button>
+          <button class="tab" onclick="switchAuthTab('login')">Login</button>
+          <button class="tab" onclick="switchAuthTab('verify')">Verify Token</button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-form">
+          <form onsubmit="handleRegister(event)">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="register-email" value="test@example.com" required>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" id="register-password" value="SecurePass123!" required>
+            </div>
+            <button type="submit">Register User</button>
+          </form>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-form" style="display: none;">
+          <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="login-email" value="test@example.com" required>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" id="login-password" value="SecurePass123!" required>
+            </div>
+            <button type="submit">Login</button>
+          </form>
+        </div>
+
+        <!-- Verify Form -->
+        <div id="verify-form" style="display: none;">
+          <button onclick="handleVerify()">Verify Current Token</button>
+          <p style="margin-top: 10px; font-size: 0.9rem; color: #6b7280;">
+            This will verify the JWT token stored in localStorage
+          </p>
+        </div>
+
+        <div id="auth-response" class="response-box" style="display: none;"></div>
+        <div id="token-display" class="token-display" style="display: none;"></div>
+      </div>
+
+      <!-- API Keys Section -->
+      <div class="card">
+        <h2><span class="icon">🔑</span> API Key Management</h2>
+        
+        <div class="tabs">
+          <button class="tab active" onclick="switchKeyTab('generate')">Generate</button>
+          <button class="tab" onclick="switchKeyTab('list')">List Keys</button>
+          <button class="tab" onclick="switchKeyTab('verify')">Verify Key</button>
+        </div>
+
+        <!-- Generate Key Form -->
+        <div id="generate-form">
+          <form onsubmit="handleGenerateKey(event)">
+            <div class="form-group">
+              <label>Key Name (Optional)</label>
+              <input type="text" id="key-name" placeholder="My API Key">
+            </div>
+            <button type="submit">Generate API Key</button>
+          </form>
+        </div>
+
+        <!-- List Keys -->
+        <div id="list-form" style="display: none;">
+          <button onclick="handleListKeys()">List All API Keys</button>
+          <div id="api-keys-list" class="api-keys-list"></div>
+        </div>
+
+        <!-- Verify Key Form -->
+        <div id="verify-key-form" style="display: none;">
+          <form onsubmit="handleVerifyKey(event)">
+            <div class="form-group">
+              <label>API Key</label>
+              <input type="text" id="verify-key-input" placeholder="auxly_..." required>
+            </div>
+            <button type="submit">Verify API Key</button>
+          </form>
+        </div>
+
+        <div id="keys-response" class="response-box" style="display: none;"></div>
+      </div>
+    </div>
+
+    <!-- Subscription Section -->
+    <div class="grid">
+      <div class="card">
+        <h2><span class="icon">💳</span> Subscription & Usage</h2>
+        
+        <div class="tabs">
+          <button class="tab active" onclick="switchSubTab('status')">Status</button>
+          <button class="tab" onclick="switchSubTab('usage')">Usage</button>
+          <button class="tab" onclick="switchSubTab('tiers')">All Tiers</button>
+        </div>
+
+        <!-- Subscription Status -->
+        <div id="status-form">
+          <button onclick="handleGetStatus()">Get Subscription Status</button>
+        </div>
+
+        <!-- Usage Limits -->
+        <div id="usage-form" style="display: none;">
+          <button onclick="handleGetUsage()">Get Usage Limits</button>
+        </div>
+
+        <!-- Available Tiers -->
+        <div id="tiers-form" style="display: none;">
+          <button onclick="handleGetTiers()">Get Available Tiers</button>
+        </div>
+
+        <div id="subscription-response" class="response-box" style="display: none;"></div>
+        <div id="tiers-display"></div>
+      </div>
+
+      <!-- Health Check -->
+      <div class="card">
+        <h2><span class="icon">❤️</span> Server Health</h2>
+        <button onclick="handleHealthCheck()">Check Server Health</button>
+        <div id="health-response" class="response-box" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:7000';
+
+    // Update auth status on page load
+    updateAuthStatus();
+
+    // Helper function to get token
+    function getToken() {
+      return localStorage.getItem('auxly_token');
+    }
+
+    // Helper function to update auth status
+    function updateAuthStatus() {
+      const token = getToken();
+      const statusEl = document.getElementById('authStatus');
+      if (token) {
+        statusEl.innerHTML = '<span>✅ Authenticated</span>';
+      } else {
+        statusEl.innerHTML = '<span>🔒 Not Authenticated</span>';
+      }
+    }
+
+    // Helper function to display response
+    function displayResponse(elementId, data, isError = false) {
+      const el = document.getElementById(elementId);
+      el.style.display = 'block';
+      el.className = `response-box ${isError ? 'error' : 'success'}`;
+      el.textContent = JSON.stringify(data, null, 2);
+    }
+
+    // Clear storage
+    function clearStorage() {
+      localStorage.clear();
+      updateAuthStatus();
+      alert('✅ Storage cleared!');
+      location.reload();
+    }
+
+    // Tab switching functions
+    function switchAuthTab(tab) {
+      document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+      document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+      document.getElementById('verify-form').style.display = tab === 'verify' ? 'block' : 'none';
+    }
+
+    function switchKeyTab(tab) {
+      document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('generate-form').style.display = tab === 'generate' ? 'block' : 'none';
+      document.getElementById('list-form').style.display = tab === 'list' ? 'block' : 'none';
+      document.getElementById('verify-key-form').style.display = tab === 'verify' ? 'block' : 'none';
+    }
+
+    function switchSubTab(tab) {
+      document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('status-form').style.display = tab === 'status' ? 'block' : 'none';
+      document.getElementById('usage-form').style.display = tab === 'usage' ? 'block' : 'none';
+      document.getElementById('tiers-form').style.display = tab === 'tiers' ? 'block' : 'none';
+    }
+
+    // Authentication handlers
+    async function handleRegister(e) {
+      e.preventDefault();
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          localStorage.setItem('auxly_token', data.token);
+          localStorage.setItem('auxly_user', JSON.stringify(data.user));
+          updateAuthStatus();
+          displayResponse('auth-response', data);
+          document.getElementById('token-display').style.display = 'block';
+          document.getElementById('token-display').textContent = `🔑 Token: ${data.token.substring(0, 50)}...`;
+        } else {
+          displayResponse('auth-response', data, true);
+        }
+      } catch (error) {
+        displayResponse('auth-response', { error: error.message }, true);
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          localStorage.setItem('auxly_token', data.token);
+          localStorage.setItem('auxly_user', JSON.stringify(data.user));
+          updateAuthStatus();
+          displayResponse('auth-response', data);
+          document.getElementById('token-display').style.display = 'block';
+          document.getElementById('token-display').textContent = `🔑 Token: ${data.token.substring(0, 50)}...`;
+        } else {
+          displayResponse('auth-response', data, true);
+        }
+      } catch (error) {
+        displayResponse('auth-response', { error: error.message }, true);
+      }
+    }
+
+    async function handleVerify() {
+      const token = getToken();
+      if (!token) {
+        alert('❌ No token found. Please login first.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/verify`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await response.json();
+        displayResponse('auth-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('auth-response', { error: error.message }, true);
+      }
+    }
+
+    // API Key handlers
+    async function handleGenerateKey(e) {
+      e.preventDefault();
+      const token = getToken();
+      if (!token) {
+        alert('❌ Please login first.');
+        return;
+      }
+
+      const name = document.getElementById('key-name').value;
+
+      try {
+        const response = await fetch(`${API_BASE}/api-keys/generate`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name: name || undefined })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          displayResponse('keys-response', data);
+          alert(`✅ API Key Generated!\n\n⚠️ SAVE THIS KEY - It won't be shown again:\n\n${data.key}`);
+        } else {
+          displayResponse('keys-response', data, true);
+        }
+      } catch (error) {
+        displayResponse('keys-response', { error: error.message }, true);
+      }
+    }
+
+    async function handleListKeys() {
+      const token = getToken();
+      if (!token) {
+        alert('❌ Please login first.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/api-keys/list`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          displayResponse('keys-response', data);
+          
+          // Display keys in a nice list
+          const listEl = document.getElementById('api-keys-list');
+          if (data.keys && data.keys.length > 0) {
+            listEl.innerHTML = data.keys.map(key => `
+              <div class="api-key-item">
+                <div>
+                  <strong>${key.name || 'Unnamed Key'}</strong><br>
+                  <small>${key.masked_key}</small><br>
+                  <small>Created: ${new Date(key.created_at).toLocaleDateString()}</small>
+                  ${key.last_used ? `<br><small>Last used: ${new Date(key.last_used).toLocaleDateString()}</small>` : ''}
+                  ${key.revoked ? '<br><span style="color: #ef4444;">❌ Revoked</span>' : ''}
+                </div>
+                ${!key.revoked ? `<button onclick="handleRevokeKey(${key.id})">Revoke</button>` : ''}
+              </div>
+            `).join('');
+          } else {
+            listEl.innerHTML = '<p>No API keys found.</p>';
+          }
+        } else {
+          displayResponse('keys-response', data, true);
+        }
+      } catch (error) {
+        displayResponse('keys-response', { error: error.message }, true);
+      }
+    }
+
+    async function handleRevokeKey(keyId) {
+      if (!confirm('Are you sure you want to revoke this API key?')) {
+        return;
+      }
+
+      const token = getToken();
+      try {
+        const response = await fetch(`${API_BASE}/api-keys/revoke`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ keyId })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          alert('✅ API key revoked successfully!');
+          handleListKeys(); // Refresh the list
+        } else {
+          alert(`❌ Error: ${data.error}`);
+        }
+      } catch (error) {
+        alert(`❌ Error: ${error.message}`);
+      }
+    }
+
+    async function handleVerifyKey(e) {
+      e.preventDefault();
+      const apiKey = document.getElementById('verify-key-input').value;
+
+      try {
+        const response = await fetch(`${API_BASE}/api-keys/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ key: apiKey })
+        });
+
+        const data = await response.json();
+        displayResponse('keys-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('keys-response', { error: error.message }, true);
+      }
+    }
+
+    // Subscription handlers
+    async function handleGetStatus() {
+      const token = getToken();
+      if (!token) {
+        alert('❌ Please login first.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/subscription/status`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await response.json();
+        displayResponse('subscription-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('subscription-response', { error: error.message }, true);
+      }
+    }
+
+    async function handleGetUsage() {
+      const token = getToken();
+      if (!token) {
+        alert('❌ Please login first.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/subscription/usage`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await response.json();
+        displayResponse('subscription-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('subscription-response', { error: error.message }, true);
+      }
+    }
+
+    async function handleGetTiers() {
+      try {
+        const response = await fetch(`${API_BASE}/subscription/tiers`);
+        const data = await response.json();
+        
+        if (response.ok && data.tiers) {
+          displayResponse('subscription-response', data);
+          
+          // Display tiers in a nice format
+          const tiersEl = document.getElementById('tiers-display');
+          tiersEl.innerHTML = data.tiers.map(tier => `
+            <div class="tier-card">
+              <h3>${tier.name} - $${tier.price}/mo</h3>
+              <ul>
+                ${tier.features.map(f => `<li>${f}</li>`).join('')}
+              </ul>
+            </div>
+          `).join('');
+        } else {
+          displayResponse('subscription-response', data, true);
+        }
+      } catch (error) {
+        displayResponse('subscription-response', { error: error.message }, true);
+      }
+    }
+
+    // Health check handler
+    async function handleHealthCheck() {
+      try {
+        const response = await fetch(`${API_BASE}/health`);
+        const data = await response.json();
+        displayResponse('health-response', data, !response.ok);
+      } catch (error) {
+        displayResponse('health-response', { error: error.message }, true);
+      }
+    }
+
+    // Auto-load list keys if authenticated
+    window.addEventListener('load', () => {
+      if (getToken()) {
+        console.log('✅ User is authenticated');
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

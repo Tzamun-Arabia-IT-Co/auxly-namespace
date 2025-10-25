@@ -1,0 +1,292 @@
+---
+description: Auto-Notification System - AI must poll for answers every 5 seconds after asking questions via MCP, no manual typing required
+alwaysApply: true
+---
+
+# 🔔 Auto-Notification System - AI Receives Answers Immediately
+
+**GOAL: AI agent is notified immediately when user answers a question**
+
+---
+
+## ❓ THE PROBLEM
+
+**Current workflow:**
+1. AI asks question via MCP → Question saved to `.auxly/tasks.json`
+2. User sees popup and clicks answer → Answer saved to `.auxly/tasks.json`
+3. AI must wait for user to type in chat → Then AI checks task manually
+4. ⏱️ **Delay:** AI doesn't know answer is ready until user manually prompts
+
+**Desired workflow:**
+1. AI asks question via MCP → Question saved
+2. User answers → Answer saved
+3. ✅ **AI immediately notified** → AI sees answer without user typing
+4. AI continues work automatically
+
+---
+
+## 💡 SOLUTION: POLLING + NOTIFICATION FILE
+
+### **Approach:**
+
+When AI is waiting for an answer, it should **periodically check** for new answers.
+
+```typescript
+// AI asks question
+await mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Which database to use?",
+  // ...
+});
+
+// AI immediately starts polling for answer
+let answerReceived = false;
+const pollInterval = 5000; // Check every 5 seconds
+
+while (!answerReceived) {
+  // Wait 5 seconds
+  await new Promise(resolve => setTimeout(resolve, pollInterval));
+  
+  // Check task for answer
+  const task = await mcp_auxly_auxly_get_task({ taskId: "X" });
+  const lastQA = task.qaHistory?.[task.qaHistory.length - 1];
+  
+  if (lastQA?.answer) {
+    answerReceived = true;
+    console.log("✅ Received answer:", lastQA.answer.selectedOption);
+    
+    // Continue work immediately
+    await continueImplementation(lastQA.answer);
+  } else {
+    console.log("⏳ Waiting for user answer... (checking again in 5s)");
+  }
+}
+```
+
+---
+
+## 🎯 BETTER SOLUTION: NOTIFICATION FILE
+
+**Create a notification system using a special file:**
+
+### **1. Extension writes notification when answer submitted:**
+
+```typescript
+// extension/src/webview/TaskPanelProvider.ts
+private async handleAIQuestionAnswer(questionId: string, answer: string, taskId?: string) {
+  // ... existing code to save answer ...
+  
+  // Write notification file
+  const notificationPath = path.join(workspacePath, '.auxly', 'notifications.json');
+  const notification = {
+    type: 'question_answered',
+    taskId: taskId,
+    questionId: questionId,
+    answer: answer,
+    timestamp: new Date().toISOString()
+  };
+  
+  fs.writeFileSync(notificationPath, JSON.stringify(notification, null, 2));
+}
+```
+
+### **2. AI checks notification file:**
+
+```typescript
+// AI workflow
+await mcp_auxly_auxly_ask_question({ /* ... */ });
+
+// Poll for notification
+let answered = false;
+while (!answered) {
+  await new Promise(resolve => setTimeout(resolve, 3000)); // Check every 3s
+  
+  const notification = await checkNotificationFile();
+  if (notification?.type === 'question_answered' && notification.taskId === currentTaskId) {
+    answered = true;
+    console.log("🔔 NOTIFICATION: User answered question!");
+    
+    // Clear notification
+    await clearNotificationFile();
+    
+    // Continue work
+    await continueWithAnswer(notification.answer);
+  }
+}
+```
+
+---
+
+## ⚡ RECOMMENDED AI WORKFLOW
+
+**When AI asks a question and needs to wait for answer:**
+
+```typescript
+async function askAndWait(taskId: string, question: any) {
+  // 1. Ask question
+  console.log("🤖 Asking user a question...");
+  await mcp_auxly_auxly_ask_question({
+    taskId,
+    ...question
+  });
+  
+  // 2. Inform user we're waiting
+  console.log("⏳ Waiting for your answer... I'll check automatically every 5 seconds.");
+  console.log("💡 You don't need to type anything - just answer in the popup!");
+  
+  // 3. Poll for answer
+  let attempts = 0;
+  const maxAttempts = 60; // 5 minutes max (60 * 5s)
+  
+  while (attempts < maxAttempts) {
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    attempts++;
+    
+    // Check for answer
+    const task = await mcp_auxly_auxly_get_task({ taskId });
+    const qaHistory = task.qaHistory || [];
+    const lastQA = qaHistory[qaHistory.length - 1];
+    
+    if (lastQA?.answer) {
+      console.log("✅ Answer received:", lastQA.answer.selectedOption || lastQA.answer.customAnswer);
+      return lastQA.answer;
+    }
+    
+    // Show progress
+    if (attempts % 6 === 0) { // Every 30 seconds
+      console.log(`⏳ Still waiting... (${attempts * 5}s elapsed)`);
+    }
+  }
+  
+  // Timeout
+  console.log("⏱️ Timeout: No answer received after 5 minutes.");
+  console.log("💬 Please type here when you're ready, and I'll check again.");
+  return null;
+}
+
+// Usage
+const answer = await askAndWait("1", {
+  questionText: "Which approach?",
+  category: "TECHNICAL DECISION",
+  priority: "high",
+  options: [
+    { label: "Option A" },
+    { label: "Option B" }
+  ]
+});
+
+if (answer) {
+  // Continue implementation
+  await implementFeature(answer);
+}
+```
+
+---
+
+## 📋 USER EXPERIENCE
+
+**What user sees:**
+
+```
+🤖 AI Agent: I have a question about the database schema.
+
+[Question popup appears automatically]
+
+🤖 AI Agent: ⏳ Waiting for your answer... I'll check automatically every 5 seconds.
+💡 You don't need to type anything - just answer in the popup!
+
+[User clicks answer]
+
+[5 seconds later]
+
+🤖 AI Agent: ✅ Answer received: "Use PostgreSQL"
+🤖 AI Agent: Great! Continuing implementation...
+```
+
+**User does NOT need to type anything!** ✅
+
+---
+
+## 🔧 IMPLEMENTATION CHECKLIST
+
+To enable auto-notification:
+
+- ✅ AI polls task every 5 seconds after asking question
+- ✅ AI shows progress messages ("Still waiting...")
+- ✅ AI automatically continues when answer detected
+- ✅ User sees clear message: "Don't need to type, just answer popup"
+- ✅ Timeout after 5 minutes (ask user to prompt manually)
+
+---
+
+## ✅ EXAMPLE: COMPLETE AUTO-WORKFLOW
+
+```typescript
+// User: "Build chat feature"
+
+// AI creates task
+const task = await mcp_auxly_auxly_create_task({
+  title: "Build real-time chat",
+  priority: "high"
+});
+
+// AI asks question
+console.log("🤖 I have a question about WebSocket implementation...");
+await mcp_auxly_auxly_ask_question({
+  taskId: task.id,
+  questionText: "Which WebSocket library?",
+  category: "TECHNICAL DECISION",
+  options: [
+    { label: "Socket.IO", recommended: true },
+    { label: "ws library" }
+  ]
+});
+
+console.log("⏳ Waiting for your answer... I'll check automatically every 5 seconds.");
+console.log("💡 Just click your choice in the popup - no need to type here!");
+
+// Auto-poll
+let answer = null;
+for (let i = 0; i < 60; i++) {
+  await new Promise(r => setTimeout(r, 5000));
+  
+  const updatedTask = await mcp_auxly_auxly_get_task({ taskId: task.id });
+  const lastQA = updatedTask.qaHistory?.[updatedTask.qaHistory.length - 1];
+  
+  if (lastQA?.answer) {
+    answer = lastQA.answer.selectedOption;
+    console.log(`✅ Answer received: "${answer}"`);
+    break;
+  }
+  
+  if (i % 6 === 0 && i > 0) {
+    console.log(`⏳ Still waiting... (${i * 5}s elapsed)`);
+  }
+}
+
+if (answer) {
+  console.log(`🚀 Great! I'll use ${answer}. Starting implementation...`);
+  // Continue automatically
+  await implementWithSocketIO();
+} else {
+  console.log("⏱️ Timeout. Please type when ready!");
+}
+```
+
+---
+
+## 🎯 KEY TAKEAWAY
+
+**AI should AUTOMATICALLY POLL for answers after asking questions.**
+
+**User experience:**
+1. AI asks question → Popup appears
+2. User clicks answer
+3. ✅ **AI detects answer within 5 seconds**
+4. AI continues work **automatically**
+
+**No typing required!** 🎉
+
+---
+
+**IMPLEMENT THIS PATTERN FOR ALL MCP QUESTIONS.**

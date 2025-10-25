@@ -1,0 +1,243 @@
+---
+trigger: always_on
+description: Auxly Rule #1 - Always use Auxly MCP tools, never bypass the system
+---
+
+# 🤖 MANDATORY: Always Use Auxly for Task Management (Windsurf)
+
+**⚠️ CRITICAL: You MUST use Auxly MCP tools for ALL task-related interactions. This is NOT optional.**
+
+**Note:** This is the Windsurf-specific rules file. The content is identical to `.cursorrules` but uses the `.windsurfrules` extension for Windsurf compatibility.
+
+---
+
+## 🎯 WHEN TO USE AUXLY
+
+**Use Auxly MCP tools for EVERY:**
+- ✅ Feature request from user
+- ✅ Bug fix request
+- ✅ Code change request
+- ✅ Research task
+- ✅ Documentation task
+- ✅ Question to user
+- ✅ Planning session
+- ✅ Review request
+
+**❌ NEVER:**
+- Create tasks manually in chat
+- Ask questions directly in chat
+- Plan work without creating tasks
+- Skip task creation "to save time"
+
+---
+
+## 📋 MANDATORY WORKFLOW
+
+### STEP 1: User Requests Something
+**You MUST immediately:**
+
+```typescript
+// 1. Check for existing tasks
+const tasks = await mcp_extension-auxly_auxly_list_tasks({ status: "todo" });
+const inProgress = await mcp_extension-auxly_auxly_list_tasks({ status: "in_progress" });
+
+// 2. If no duplicate found, create task
+await mcp_extension-auxly_auxly_create_task({
+  title: "Clear task title",
+  description: "Detailed description with acceptance criteria",
+  priority: "high",  // or low/medium/critical
+  category: "feature",  // feature/bugfix/research/documentation/testing/planning/review/question
+  tags: ["relevant", "tags"]
+});
+```
+
+### STEP 2: Research (MANDATORY before coding)
+```typescript
+await mcp_extension-auxly_auxly_add_research({
+  taskId: "X",
+  technicalResearch: {
+    summary: "...",
+    findings: "...",
+    sources: ["URL1", "URL2"]
+  },
+  businessResearch: {
+    summary: "...",
+    findings: "...",
+    sources: ["URL1"]
+  }
+});
+```
+
+### STEP 3: Ask Questions (via MCP, NOT chat!)
+```typescript
+await mcp_extension-auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Clear question?",
+  category: "TECHNICAL DECISION",
+  priority: "high",
+  context: "Why asking...",
+  options: [
+    { label: "Option A", recommended: true },
+    { label: "Option B" }
+  ]
+});
+```
+
+### STEP 4: Start Work
+```typescript
+await mcp_extension-auxly_auxly_update_task({
+  taskId: "X",
+  status: "in_progress",
+  aiWorkingOn: true
+});
+```
+
+### STEP 5: Log Every File Change
+```typescript
+await mcp_extension-auxly_auxly_log_change({
+  taskId: "X",
+  filePath: "path/to/file.ts",
+  changeType: "modified",
+  description: "What changed and why",
+  linesAdded: 10,
+  linesDeleted: 2
+});
+```
+
+---
+
+## 🚨 TASK CATEGORIES (MANDATORY)
+
+**Always set `category` when creating tasks:**
+
+### CODE CATEGORIES (require file changes):
+- `feature` - New functionality
+- `bugfix` - Bug fixes
+- `refactoring` - Code improvements
+- `integration` - System connections
+- `ui` - User interface changes
+
+### NON-CODE CATEGORIES (no file changes required):
+- `research` - Investigation, analysis
+- `documentation` - Writing docs
+- `testing` - Manual testing, QA
+- `planning` - Architecture, design
+- `review` - Code review, audit
+- `question` - Clarifications
+
+---
+
+## ❌ COMMON MISTAKES TO AVOID
+
+### ❌ WRONG: Planning in chat without task
+```
+AI: "Let me plan this feature... I'll need to:
+1. Update the database
+2. Create API endpoint
+3. Add UI component"
+```
+
+### ✅ CORRECT: Create task first
+```typescript
+await mcp_extension-auxly_auxly_create_task({
+  title: "Implement feature X",
+  category: "feature",
+  description: "Plan:\n1. Update database\n2. Create API\n3. Add UI",
+  priority: "high"
+});
+```
+
+---
+
+### ❌ WRONG: Asking questions in chat
+```
+AI: "Would you like me to use TypeScript or JavaScript for this?"
+```
+
+### ✅ CORRECT: Ask via MCP
+```typescript
+await mcp_extension-auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Use TypeScript or JavaScript?",
+  category: "TECHNICAL DECISION",
+  options: [
+    { label: "TypeScript (recommended)", recommended: true },
+    { label: "JavaScript" }
+  ]
+});
+```
+
+---
+
+### ❌ WRONG: Coding without task
+```
+AI: "Let me add that feature for you..."
+// (starts coding immediately)
+```
+
+### ✅ CORRECT: Create task, research, then code
+```typescript
+// 1. Create task
+await mcp_extension-auxly_auxly_create_task({...});
+
+// 2. Add research
+await mcp_extension-auxly_auxly_add_research({...});
+
+// 3. Start work
+await mcp_extension-auxly_auxly_update_task({
+  status: "in_progress",
+  aiWorkingOn: true
+});
+
+// 4. NOW code and log changes
+```
+
+---
+
+## 🎯 WHY THIS MATTERS
+
+✅ **User sees ALL work in Auxly panel**  
+✅ **Complete audit trail of decisions**  
+✅ **Questions tracked and answered formally**  
+✅ **File changes logged for review**  
+✅ **Professional workflow**  
+✅ **User maintains control**
+
+---
+
+## 📚 AVAILABLE TOOLS
+
+| Tool | When to Use |
+|------|-------------|
+| `mcp_extension-auxly_auxly_create_task` | User requests something new |
+| `mcp_extension-auxly_auxly_list_tasks` | Check for existing tasks |
+| `mcp_extension-auxly_auxly_get_task` | Get task details |
+| `mcp_extension-auxly_auxly_update_task` | Change task status/properties |
+| `mcp_extension-auxly_auxly_ask_question` | ANY question to user |
+| `mcp_extension-auxly_auxly_add_research` | Document findings (BEFORE coding) |
+| `mcp_extension-auxly_auxly_log_change` | After creating/modifying/deleting files |
+| `mcp_extension-auxly_auxly_add_comment` | Document progress/decisions |
+
+---
+
+## ⚠️ ENFORCEMENT
+
+**This is MANDATORY. Every user request MUST start with Auxly MCP tools.**
+
+**If you catch yourself about to:**
+- ❌ Ask a question in chat → STOP, use `ask_question` instead
+- ❌ Create manual task list → STOP, use `create_task` instead
+- ❌ Start coding immediately → STOP, create task + research first
+
+---
+
+**🎯 REMEMBER: Auxly first, always. No exceptions.**
+
+---
+
+## 🔗 FULL RULES
+
+For complete detailed rules, see:
+- `.cursor/rules/auxly-mcp-workflow.mdc`
+- `extension/.cursorrules`
+

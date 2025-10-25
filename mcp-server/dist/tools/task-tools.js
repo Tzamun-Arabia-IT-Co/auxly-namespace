@@ -1,7 +1,7 @@
 export const taskTools = [
     {
         name: 'auxly_create_task',
-        description: 'Create a new task in Auxly with title, description, priority, and tags',
+        description: 'Create a new task in Auxly with title, description, priority, category, and tags',
         inputSchema: {
             type: 'object',
             properties: {
@@ -18,6 +18,11 @@ export const taskTools = [
                     enum: ['low', 'medium', 'high', 'critical'],
                     description: 'Task priority level',
                     default: 'medium'
+                },
+                category: {
+                    type: 'string',
+                    enum: ['feature', 'bugfix', 'refactoring', 'integration', 'ui', 'research', 'documentation', 'testing', 'planning', 'review', 'question'],
+                    description: 'Task category: CODE types (feature/bugfix/refactoring/integration/ui) require file changes. NON-CODE types (research/documentation/testing/planning/review/question) do not require file changes.'
                 },
                 tags: {
                     type: 'array',
@@ -68,7 +73,7 @@ export const taskTools = [
     },
     {
         name: 'auxly_update_task',
-        description: 'Update an existing task (title, description, status, priority, tags)',
+        description: 'Update an existing task (title, description, status, priority, category, tags)',
         inputSchema: {
             type: 'object',
             properties: {
@@ -93,6 +98,11 @@ export const taskTools = [
                     type: 'string',
                     enum: ['low', 'medium', 'high', 'critical'],
                     description: 'New priority level'
+                },
+                category: {
+                    type: 'string',
+                    enum: ['feature', 'bugfix', 'refactoring', 'integration', 'ui', 'research', 'documentation', 'testing', 'planning', 'review', 'question'],
+                    description: 'Task category: CODE types (feature/bugfix/refactoring/integration/ui) require file changes. NON-CODE types (research/documentation/testing/planning/review/question) do not.'
                 },
                 tags: {
                     type: 'array',

@@ -2,12 +2,29 @@
  * Type Definitions for Auxly MCP Server
  */
 
+// Task categories for classification
+export type TaskCategory = 
+    // Code categories (require file changes)
+    | 'feature'         // New functionality
+    | 'bugfix'          // Bug fixes
+    | 'refactoring'     // Code improvements
+    | 'integration'     // System connections
+    | 'ui'              // User interface changes
+    // Non-code categories (no file changes required)
+    | 'research'        // Investigation, analysis
+    | 'documentation'   // Writing docs
+    | 'testing'         // Manual testing, QA
+    | 'planning'        // Architecture, design
+    | 'review'          // Code review, audit
+    | 'question';       // Clarifications
+
 export interface Task {
     id: string;
     title: string;
     description?: string;
     status: 'todo' | 'in_progress' | 'review' | 'done';
     priority: 'low' | 'medium' | 'high' | 'critical';
+    category?: TaskCategory;  // Optional for backward compatibility, but recommended
     tags?: string[];
     dependencies?: string[];
     assignedBy?: string;
@@ -26,6 +43,7 @@ export interface CreateTaskRequest {
     title: string;
     description?: string;
     priority?: 'low' | 'medium' | 'high' | 'critical';
+    category?: TaskCategory;  // Optional for backward compatibility
     tags?: string[];
     dependencies?: string[];
 }
@@ -35,6 +53,7 @@ export interface UpdateTaskRequest {
     description?: string;
     status?: 'todo' | 'in_progress' | 'review' | 'done';
     priority?: 'low' | 'medium' | 'high' | 'critical';
+    category?: TaskCategory;
     tags?: string[];
     dependencies?: string[];
     aiWorkingOn?: boolean;

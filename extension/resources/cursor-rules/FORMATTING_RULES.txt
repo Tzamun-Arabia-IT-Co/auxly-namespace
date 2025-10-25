@@ -1,0 +1,40 @@
+🚫 TASK FORMATTING RULES (CRITICAL)
+
+⚠️ AVOID SPECIAL CHARACTERS IN TASK TITLES & DESCRIPTIONS ⚠️
+
+FORBIDDEN Characters:
+❌ Backticks (` `)
+❌ Single Quotes (')
+❌ Double Quotes (")
+❌ Backslashes (\)
+❌ Dollar Signs ($)
+❌ Curly Braces ({ })
+❌ HTML Tags (< >)
+
+ALLOWED Characters:
+✅ Plain text (A-Z, a-z)
+✅ Hyphens (-)
+✅ Underscores (_)
+✅ Colons (:)
+✅ Parentheses (())
+✅ Numbers (0-9)
+✅ Emojis (🎯, ✅, 🔧)
+
+EXAMPLES:
+
+❌ WRONG (Will Break Dashboard):
+"Fix the \"logo\" bug"
+"Update `config.json` file"
+"John's task"
+"Fix ${variable} issue"
+
+✅ CORRECT (Safe Rendering):
+"Fix the logo bug"
+"Update config.json file"
+"Fix user task"
+"Fix variable interpolation issue"
+"🔧 Fix API Connection"
+
+USE PLAIN, DESCRIPTIVE TEXT FOR ALL TASK TITLES - NO EXCEPTIONS
+
+

@@ -141,7 +141,7 @@ const server = new Server(
                 isError: true
               };
             } else {
-              // Other validation errors (research, dependencies, etc.)
+              // Generic error for non-hold issues
               return {
                 content: [{ 
                   type: 'text', 

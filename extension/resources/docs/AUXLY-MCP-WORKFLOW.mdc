@@ -1,0 +1,479 @@
+# 🤖 Auxly MCP Workflow - Complete Guide
+
+**Version:** 5.0.9  
+**Last Updated:** October 14, 2025  
+**For:** AI Agents using Auxly via MCP Tools
+
+---
+
+## 🚨 **CRITICAL: Storage Sync Issue & Solution**
+
+### **Known Issue: MCP Storage Location Mismatch**
+
+**Problem:**
+- **MCP Server** writes to: `%USERPROFILE%\.auxly\tasks.json` (User home directory)
+- **Extension UI** reads from: `{workspace}\.auxly\tasks.json` (Workspace directory)
+- **Result:** Tasks created via MCP don't appear in Extension UI immediately
+
+**Why This Happens:**
+The MCP server uses the `AUXLY_WORKSPACE_PATH` environment variable, but sometimes falls back to the user's home directory. The extension always reads from the workspace-specific `.auxly` folder.
+
+---
+
+### **✅ Solution: Automatic Storage Sync (Implemented v5.0.9+)**
+
+**For Users:**
+1. **After creating tasks via MCP**, reload Cursor window:
+   - Press `Ctrl+Shift+P`
+   - Type: "Developer: Reload Window"
+   - Press Enter
+
+2. **Or use the refresh command:**
+   - Press `Ctrl+Shift+P`
+   - Type: "Auxly: Refresh Tasks"
+   - Press Enter
+
+**For Developers:**
+The extension now includes automatic sync on activation and periodic checks.
+
+---
+
+## 📋 **Complete MCP Workflow Process**
+
+### **Step 1: Create Tasks (MANDATORY FIRST STEP)**
+
+Every user request MUST start with task creation:
+
+```javascript
+// Example: User requests "Add free trial system"
+await mcp_extension-auxly_auxly_create_task({
+  title: "Research Free Trial System Architecture",
+  description: "Comprehensive research and planning...",
+  priority: "critical",
+  tags: ["research", "architecture", "free-trial"]
+});
+```
+
+**Task Creation Guidelines:**
+- **Complex features:** Create 2-10 tasks (research → implement → test)
+- **Simple fixes:** Single task acceptable
+- **Always break down:** Multi-component work into logical phases
+
+---
+
+### **Step 2: Conduct Mandatory Research**
+
+**BEFORE ANY CODE, YOU MUST:**
+
+1. **🔍 Search Local Codebase:**
+```javascript
+// Use codebase_search to find existing patterns
+codebase_search({
+  query: "How does config storage work?",
+  target_directories: ["extension/src"]
+});
+```
+
+2. **🌐 Search Internet (2025 Information):**
+```javascript
+// Use web_search for current best practices
+web_search({
+  search_term: "VSCode extension trial system 2025"
+});
+```
+
+3. **📝 Document Research:**
+```javascript
+await mcp_extension-auxly_auxly_add_comment({
+  taskId: "2",
+  content: `**MANDATORY RESEARCH COMPLETED** ✅
+  
+**Local Codebase Analysis:**
+[findings with code snippets]
+
+**Internet Research (2025):**
+🔗 [Real URL from search]
+- Key insights
+- Applicable to task
+
+**Synthesis & Recommendation:**
+[final decision]`,
+  type: "note"
+});
+```
+
+---
+
+### **Step 3: Ask Questions (If Needed)**
+
+If requirements are unclear:
+
+```javascript
+await mcp_extension-auxly_auxly_ask_question({
+  taskId: "2",
+  questionText: "Should the trial be 14 or 30 days?",
+  category: "TECHNICAL DECISION",
+  priority: "high",
+  context: "Need to determine trial length...",
+  options: [
+    { label: "14 days", recommended: false },
+    { label: "30 days", recommended: true },
+    { label: "Custom duration", recommended: false }
+  ],
+  allowCustomAnswer: true
+});
+```
+
+**User will see popup with sound alert!**
+
+---
+
+### **Step 4: Mark Task as In Progress**
+
+```javascript
+await mcp_extension-auxly_auxly_update_task({
+  taskId: "2",
+  status: "in_progress",
+  aiWorkingOn: true  // ✅ CRITICAL: Shows animated border in UI
+});
+```
+
+---
+
+### **Step 5: Implement & Log Changes**
+
+As you modify files:
+
+```javascript
+await mcp_extension-auxly_auxly_log_change({
+  taskId: "2",
+  filePath: "extension/src/trial/trial-service.ts",
+  changeType: "created",
+  description: "Created trial tracking service with 30-day expiry logic",
+  linesAdded: 245,
+  linesDeleted: 0
+});
+```
+
+---
+
+### **Step 6: Add Result Comment**
+
+**MANDATORY before moving to Review:**
+
+```javascript
+await mcp_extension-auxly_auxly_add_comment({
+  taskId: "2",
+  content: `**✅ TASK COMPLETED**
+
+**What Was Accomplished:**
+- Research completed (3 sources analyzed)
+- Architecture document created
+- Security recommendations documented
+
+**Key Decisions:**
+- Use 30-day trial period
+- Store in .auxly/config.json
+- Encrypt API keys with VSCode SecretStorage
+
+**Files Created:**
+- docs/TRIAL-ARCHITECTURE.md (152 lines)
+
+**Next Steps:**
+Ready for implementation (Task #3)`,
+  type: "result"
+});
+```
+
+---
+
+### **Step 7: Move to Review**
+
+```javascript
+await mcp_extension-auxly_auxly_update_task({
+  taskId: "2",
+  status: "review",
+  aiWorkingOn: false  // ✅ CRITICAL: Remove animated border
+});
+```
+
+**⚠️ STOP HERE! Human approval required before marking "Done"**
+
+---
+
+### **Step 8: Human Approval (Required)**
+
+**AI MUST WAIT for human to:**
+- Review the work
+- Test changes
+- Provide feedback or approval
+
+**Only humans can mark tasks as "Done"**
+
+---
+
+## 🔧 **Approval Request Workflow**
+
+For significant changes, request approval:
+
+```javascript
+await mcp_extension-auxly_auxly_ask_question({
+  taskId: "3",
+  questionText: "Approve: Add 'trialStartDate' field to config.json?",
+  category: "APPROVAL REQUEST",
+  priority: "critical",
+  context: "This change adds trial tracking. Migration: Add field to existing configs.",
+  options: [
+    { label: "✅ Approve", recommended: true },
+    { label: "❌ Reject" },
+    { label: "🤔 Modify approach" }
+  ]
+});
+
+// WAIT for answer before proceeding
+const task = await mcp_extension-auxly_auxly_get_task({ taskId: "3" });
+const answer = task.qaHistory[task.qaHistory.length - 1].answer;
+
+if (answer.selectedOption === "✅ Approve") {
+  // Proceed with implementation
+} else {
+  // Adjust approach based on feedback
+}
+```
+
+---
+
+## 📊 **Task Status Flow**
+
+```
+[todo]
+  ↓ Start work (status: in_progress, aiWorkingOn: true)
+[in_progress]
+  ↓ Complete work + add result comment
+[review]
+  ↓ Human approval
+[done]
+  ↓ MANDATORY: Assess remaining tasks
+[task refinement]
+  ↓ Create/Update/Delete related tasks
+```
+
+---
+
+## 🎯 **Best Practices**
+
+### **DO:**
+✅ Always create tasks first (no exceptions)
+✅ Conduct research before coding
+✅ Document all file changes
+✅ Request approval for significant changes
+✅ Set `aiWorkingOn: true` when starting
+✅ Set `aiWorkingOn: false` when pausing/completing
+✅ Add result comments before review
+✅ Wait for human approval in review state
+
+### **DON'T:**
+❌ Skip task creation
+❌ Code without research
+❌ Forget to log file changes
+❌ Make breaking changes without approval
+❌ Mark tasks "Done" without human approval
+❌ Forget to set aiWorkingOn flags
+
+---
+
+## 🔍 **Available MCP Tools**
+
+| Tool | Purpose | When to Use |
+|------|---------|-------------|
+| `auxly_create_task` | Create new task | Start of every workflow |
+| `auxly_list_tasks` | View all tasks | Check project status |
+| `auxly_get_task` | Get task details | Retrieve full task data |
+| `auxly_update_task` | Update task | Change status, description |
+| `auxly_delete_task` | Delete task | Remove obsolete tasks |
+| `auxly_add_comment` | Add comment | Document notes, results |
+| `auxly_ask_question` | Ask user | Clarification or approval |
+| `auxly_log_change` | Log file change | Track code modifications |
+| `auxly_get_task_comments` | Get comments | Review task history |
+| `auxly_get_task_changelog` | Get changes | See file modifications |
+| `auxly_get_task_questions` | Get Q&A | Check answers |
+
+---
+
+## 🐛 **Troubleshooting**
+
+### **Issue: Tasks not showing in UI**
+
+**Solution:**
+1. Check if tasks exist in MCP:
+   ```javascript
+   await mcp_extension-auxly_auxly_list_tasks();
+   ```
+
+2. If tasks exist but not visible:
+   - User must reload Cursor window
+   - Or run "Auxly: Refresh Tasks" command
+
+3. Storage sync issue:
+   - Tasks in `%USERPROFILE%\.auxly\tasks.json`
+   - Need to copy to workspace `.auxly\tasks.json`
+
+---
+
+### **Issue: Question popup not appearing**
+
+**Possible Causes:**
+1. Extension not loaded
+2. Webview not open
+3. Audio locked (first click needed)
+
+**Solution:**
+- User must open Auxly panel first
+- Reload extension if needed
+- Click anywhere in Cursor to unlock audio
+
+---
+
+### **Issue: Cannot mark task as "Done"**
+
+**Cause:** Result comment missing
+
+**Solution:**
+```javascript
+// 1. Add result comment first
+await mcp_extension-auxly_auxly_add_comment({
+  taskId: "X",
+  content: "Task completed...",
+  type: "result"
+});
+
+// 2. Then update status
+await mcp_extension-auxly_auxly_update_task({
+  taskId: "X",
+  status: "review"  // NOT "done" - human approval needed
+});
+```
+
+---
+
+## 📚 **Example: Complete Workflow**
+
+```javascript
+// User: "Add dark mode toggle"
+
+// 1. CREATE TASKS
+await mcp_extension-auxly_auxly_create_task({
+  title: "Research Dark Mode Implementation",
+  description: "Research VS Code theme detection and CSS variables...",
+  priority: "high",
+  tags: ["research", "ui", "dark-mode"]
+});
+
+await mcp_extension-auxly_auxly_create_task({
+  title: "Implement Dark Mode Toggle",
+  description: "Add theme detection and CSS styling...",
+  priority: "high",
+  tags: ["implementation", "ui", "dark-mode"]
+});
+
+// 2. START RESEARCH TASK
+await mcp_extension-auxly_auxly_update_task({
+  taskId: "1",
+  status: "in_progress",
+  aiWorkingOn: true
+});
+
+// 3. CONDUCT RESEARCH
+// [Search codebase and internet]
+
+// 4. DOCUMENT RESEARCH
+await mcp_extension-auxly_auxly_add_comment({
+  taskId: "1",
+  content: "**MANDATORY RESEARCH COMPLETED** ✅...",
+  type: "note"
+});
+
+// 5. ASK QUESTION (if needed)
+await mcp_extension-auxly_auxly_ask_question({
+  taskId: "1",
+  questionText: "Should dark mode follow system theme or manual toggle?",
+  // ...
+});
+
+// 6. ADD RESULT
+await mcp_extension-auxly_auxly_add_comment({
+  taskId: "1",
+  content: "✅ Research complete. Recommendations documented.",
+  type: "result"
+});
+
+// 7. MOVE TO REVIEW
+await mcp_extension-auxly_auxly_update_task({
+  taskId: "1",
+  status: "review",
+  aiWorkingOn: false
+});
+
+// 8. WAIT FOR HUMAN APPROVAL
+// (Human marks as "Done")
+
+// 9. START IMPLEMENTATION
+await mcp_extension-auxly_auxly_update_task({
+  taskId: "2",
+  status: "in_progress",
+  aiWorkingOn: true
+});
+
+// 10. IMPLEMENT & LOG CHANGES
+// [Code implementation]
+await mcp_extension-auxly_auxly_log_change({
+  taskId: "2",
+  filePath: "extension/src/webview/theme.ts",
+  changeType: "created",
+  description: "Created theme service with dark mode detection",
+  linesAdded: 187,
+  linesDeleted: 0
+});
+
+// 11. ADD RESULT & REVIEW
+await mcp_extension-auxly_auxly_add_comment({
+  taskId: "2",
+  content: "✅ Implementation complete...",
+  type: "result"
+});
+
+await mcp_extension-auxly_auxly_update_task({
+  taskId: "2",
+  status: "review",
+  aiWorkingOn: false
+});
+
+// 12. HUMAN APPROVAL & DONE
+// (Human marks as "Done")
+```
+
+---
+
+## 🎉 **Summary**
+
+**The Complete Flow:**
+1. ✅ Create tasks (mandatory first step)
+2. ✅ Research (local + internet)
+3. ✅ Ask questions (if needed)
+4. ✅ Mark in_progress (aiWorkingOn: true)
+5. ✅ Implement & log changes
+6. ✅ Add result comment
+7. ✅ Move to review (aiWorkingOn: false)
+8. ✅ Wait for human approval
+9. ✅ Human marks done
+10. ✅ Refine remaining tasks
+
+**This workflow ensures:**
+- ✅ Transparency (all work tracked)
+- ✅ Quality (research before coding)
+- ✅ Collaboration (questions & approvals)
+- ✅ Accountability (detailed logging)
+
+---
+
+**Made in Saudi Arabia 🇸🇦 with ❤️ by Tzamun Arabia IT Co.**

@@ -66,7 +66,7 @@ export class LocalTaskStorage {
         'production'
     ];
 
-    private readonly MIN_WORK_TIME_MS = 5 * 60 * 1000; // 5 minutes
+    // Removed MIN_WORK_TIME_MS restriction - tasks can be completed immediately
     private readonly MAX_STALE_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours
 
     constructor(workspacePath?: string) {
@@ -167,17 +167,26 @@ export class LocalTaskStorage {
      */
     private validateResearchExists(task: Task, newStatus: string): void {
         if (newStatus === 'in_progress') {
-            // Check for research in both locations: task.research array OR research comments
-            const hasResearchArray = task.research && task.research.length > 0;
+            // Question category doesn't require research
+            if (task.category === 'question') {
+                return; // ✅ Questions can start immediately
+            }
+            
+            // Check for research in comments (technical_research or business_research)
             const comments = (task as any).comments || [];
-            const hasResearchComments = comments.some((c: any) => 
+            const hasResearch = comments.some((c: any) => 
                 c.type === 'technical_research' || c.type === 'business_research'
             );
             
-            if (!hasResearchArray && !hasResearchComments) {
+            if (!hasResearch) {
                 throw new Error(
-                    `Cannot start task without research.\n` +
-                    `Add research using auxly_add_research before starting work.`
+                    `❌ BLOCKED: Cannot start Task #${task.id} "${task.title}" without research.\n\n` +
+                    `MANDATORY REQUIREMENT: Add research using auxly_add_research BEFORE starting work.\n\n` +
+                    `Required research types:\n` +
+                    `1. Technical Research (type: "technical_research")\n` +
+                    `2. Business Research (type: "business_research")\n\n` +
+                    `AI must conduct BOTH types of research before coding.\n\n` +
+                    `💡 Exception: Tasks with category "question" don't require research.`
                 );
             }
         }
@@ -188,11 +197,30 @@ export class LocalTaskStorage {
      */
     private validateFileChangesLogged(task: Task, newStatus: string): void {
         if ((newStatus === 'done' || newStatus === 'review')) {
+            // Define non-code categories that don't require file changes
+            const nonCodeCategories = ['research', 'documentation', 'testing', 'planning', 'review', 'question'];
+            
+            // Check if task category is non-code
+            const isNonCodeTask = task.category && nonCodeCategories.includes(task.category);
+            
+            // Also check tags as fallback for backward compatibility
+            const hasNonCodeTag = task.tags?.some(tag => 
+                ['test', 'research', 'documentation', 'planning', 'audit', 'review', 'analysis'].includes(tag.toLowerCase())
+            );
+            
+            if (isNonCodeTask || hasNonCodeTag) {
+                // Non-code tasks don't require file changes
+                return;
+            }
+            
             const hasChanges = task.changes && task.changes.length > 0;
             if (!hasChanges) {
                 throw new Error(
                     `Cannot complete task without logging file changes.\n` +
-                    `Task appears incomplete - no files modified.`
+                    `Task appears incomplete - no files modified.\n` +
+                    `\n` +
+                    `📌 Tip: If this is a non-code task, set category to one of:\n` +
+                    `   research, documentation, testing, planning, review, or question`
                 );
             }
         }
@@ -254,15 +282,8 @@ export class LocalTaskStorage {
         const updatedAt = new Date(task.updatedAt).getTime();
         const timeElapsed = now - updatedAt;
 
-        // Check minimum work time before completion
-        if (newStatus === 'done' && task.status === 'in_progress') {
-            if (timeElapsed < this.MIN_WORK_TIME_MS) {
-                throw new Error(
-                    `Task completed too quickly (${Math.round(timeElapsed / 1000 / 60)} minutes).\n` +
-                    `Minimum work time: 5 minutes. Ensure proper implementation and testing.`
-                );
-            }
-        }
+        // Removed minimum work time check - tasks can be completed immediately
+        // This allows for quick tasks and flexible workflow
 
         // Warn about stale tasks
         if (task.status === 'in_progress' && timeElapsed > this.MAX_STALE_TIME_MS) {
@@ -401,6 +422,7 @@ export class LocalTaskStorage {
         title: string;
         description?: string;
         priority?: 'low' | 'medium' | 'high' | 'critical';
+        category?: string;
         tags?: string[];
     }): Promise<Task> {
         this.loadTasks();
@@ -477,6 +499,7 @@ export class LocalTaskStorage {
             description: data.description,
             status: 'todo',
             priority: data.priority || 'medium',
+            category: data.category as any,  // Cast to TaskCategory type
             tags: data.tags,
             availabilityStatus: 'available',
             createdAt: new Date().toISOString(),
@@ -494,7 +517,6 @@ export class LocalTaskStorage {
      * Update existing task
      */
     async updateTask(taskId: string, updates: Partial<Task>): Promise<Task | null> {
-        // FORCE RELOAD: Always reload from disk to get latest state (in case UI updated it)
         this.loadTasks();
 
         const taskIndex = this.tasks.findIndex(t => t.id === taskId);
@@ -512,16 +534,26 @@ export class LocalTaskStorage {
             throw new Error(`Task #${taskId} is ON HOLD. Only users can release hold status via UI.`);
         }
 
-        // Block any status change to 'in_progress' if task is on HOLD
-        if (currentTask.availabilityStatus === 'hold' && updates.status === 'in_progress') {
-            console.error(`[LocalStorage] ❌ BLOCKED: Cannot move Task #${taskId} to 'in_progress' - Task is ON HOLD`);
-            throw new Error(`Task #${taskId} is ON HOLD. Cannot change status to 'in_progress'. Release hold status first.`);
+        // Block any status change if task is on HOLD (not just to in_progress)
+        if (currentTask.availabilityStatus === 'hold' && updates.status && updates.status !== currentTask.status) {
+            console.error(`[LocalStorage] ❌ BLOCKED: Cannot change status on Task #${taskId} - Task is ON HOLD`);
+            throw new Error(
+                `❌ BLOCKED: Task #${taskId} "${currentTask.title}" is ON HOLD.\n\n` +
+                `Cannot change status from "${currentTask.status}" to "${updates.status}".\n` +
+                `Only the user can release hold status via the Auxly dashboard.\n\n` +
+                `AI must SKIP this task and work on available tasks only.`
+            );
         }
 
         // Block aiWorkingOn=true if task is on HOLD
         if (currentTask.availabilityStatus === 'hold' && updates.aiWorkingOn === true) {
             console.error(`[LocalStorage] ❌ BLOCKED: Cannot set aiWorkingOn=true on Task #${taskId} - Task is ON HOLD`);
-            throw new Error(`Task #${taskId} is ON HOLD. Cannot start working on it. Release hold status first.`);
+            throw new Error(
+                `❌ BLOCKED: Task #${taskId} "${currentTask.title}" is ON HOLD.\n\n` +
+                `Cannot start working on this task.\n` +
+                `Release hold status first via Auxly dashboard.\n\n` +
+                `AI must SKIP this task and work on available tasks only.`
+            );
         }
 
         // ==========================================

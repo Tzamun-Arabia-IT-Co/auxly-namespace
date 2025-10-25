@@ -1,9 +1,11 @@
+export type TaskCategory = 'feature' | 'bugfix' | 'refactoring' | 'integration' | 'ui' | 'research' | 'documentation' | 'testing' | 'planning' | 'review' | 'question';
 export interface Task {
     id: string;
     title: string;
     description?: string;
     status: 'todo' | 'in_progress' | 'review' | 'done';
     priority: 'low' | 'medium' | 'high' | 'critical';
+    category?: TaskCategory;
     tags?: string[];
     dependencies?: string[];
     assignedBy?: string;
@@ -20,6 +22,7 @@ export interface CreateTaskRequest {
     title: string;
     description?: string;
     priority?: 'low' | 'medium' | 'high' | 'critical';
+    category?: TaskCategory;
     tags?: string[];
     dependencies?: string[];
 }
@@ -28,6 +31,7 @@ export interface UpdateTaskRequest {
     description?: string;
     status?: 'todo' | 'in_progress' | 'review' | 'done';
     priority?: 'low' | 'medium' | 'high' | 'critical';
+    category?: TaskCategory;
     tags?: string[];
     dependencies?: string[];
     aiWorkingOn?: boolean;

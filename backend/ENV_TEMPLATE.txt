@@ -1,0 +1,29 @@
+# Auxly Backend Environment Variables
+# Copy this file to .env and fill in your actual values
+
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=Auxly
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_POOL_MIN=2
+DB_POOL_MAX=10
+
+# JWT Configuration
+# Generate a strong secret: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production-min-256-bits
+
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+
+# CORS Configuration
+CORS_ORIGIN=http://localhost:3000
+
+# Stripe Configuration
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_PRO=price_...
+STRIPE_PRICE_TEAM=price_...
+

@@ -1,0 +1,125 @@
+-- Migration: Create Beta User Tables
+-- Description: Tables for beta testers with invitation-only access
+-- Created: 2025-10-12
+
+-- Beta Users Table
+CREATE TABLE IF NOT EXISTS beta_users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(50) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  email VARCHAR(255),
+  api_key VARCHAR(100) UNIQUE NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_login TIMESTAMP,
+  created_by VARCHAR(50),
+  notes TEXT,
+  
+  CONSTRAINT username_format CHECK (username ~ '^[a-zA-Z0-9_]{3,50}$'),
+  CONSTRAINT email_format CHECK (email IS NULL OR email ~ '^[^@]+@[^@]+\.[^@]+$')
+);
+
+-- Beta Admins Table
+CREATE TABLE IF NOT EXISTS beta_admins (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(50) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_login TIMESTAMP,
+  
+  CONSTRAINT admin_username_format CHECK (username ~ '^[a-zA-Z0-9_]{3,50}$')
+);
+
+-- API Key Usage Tracking
+CREATE TABLE IF NOT EXISTS api_key_usage (
+  id SERIAL PRIMARY KEY,
+  api_key VARCHAR(100) NOT NULL,
+  endpoint VARCHAR(255),
+  method VARCHAR(10),
+  status_code INTEGER,
+  response_time_ms INTEGER,
+  ip_address VARCHAR(45),
+  user_agent TEXT,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Indexes for Performance
+CREATE INDEX IF NOT EXISTS idx_beta_users_username ON beta_users(username);
+CREATE INDEX IF NOT EXISTS idx_beta_users_api_key ON beta_users(api_key);
+CREATE INDEX IF NOT EXISTS idx_beta_users_is_active ON beta_users(is_active);
+CREATE INDEX IF NOT EXISTS idx_beta_users_created_at ON beta_users(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_api_key_usage_api_key ON api_key_usage(api_key);
+CREATE INDEX IF NOT EXISTS idx_api_key_usage_timestamp ON api_key_usage(timestamp DESC);
+
+-- Create View for Beta User Statistics
+CREATE OR REPLACE VIEW beta_user_stats AS
+SELECT 
+  COUNT(*) FILTER (WHERE is_active = true) AS active_users,
+  COUNT(*) FILTER (WHERE is_active = false) AS inactive_users,
+  COUNT(*) AS total_users,
+  COUNT(*) FILTER (WHERE last_login IS NOT NULL) AS users_who_logged_in,
+  COUNT(*) FILTER (WHERE last_login > NOW() - INTERVAL '7 days') AS active_last_week,
+  COUNT(*) FILTER (WHERE last_login > NOW() - INTERVAL '30 days') AS active_last_month
+FROM beta_users;
+
+-- Create Function to Log API Usage
+CREATE OR REPLACE FUNCTION log_api_usage(
+  p_api_key VARCHAR(100),
+  p_endpoint VARCHAR(255),
+  p_method VARCHAR(10),
+  p_status_code INTEGER,
+  p_response_time_ms INTEGER,
+  p_ip_address VARCHAR(45),
+  p_user_agent TEXT
+) RETURNS VOID AS $$
+BEGIN
+  INSERT INTO api_key_usage (
+    api_key,
+    endpoint,
+    method,
+    status_code,
+    response_time_ms,
+    ip_address,
+    user_agent
+  ) VALUES (
+    p_api_key,
+    p_endpoint,
+    p_method,
+    p_status_code,
+    p_response_time_ms,
+    p_ip_address,
+    p_user_agent
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create Function to Get User by API Key
+CREATE OR REPLACE FUNCTION get_user_by_api_key(p_api_key VARCHAR(100))
+RETURNS TABLE (
+  id INTEGER,
+  username VARCHAR(50),
+  email VARCHAR(255),
+  is_active BOOLEAN
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    bu.id,
+    bu.username,
+    bu.email,
+    bu.is_active
+  FROM beta_users bu
+  WHERE bu.api_key = p_api_key AND bu.is_active = true;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Add Comments
+COMMENT ON TABLE beta_users IS 'Beta testers with invitation-only access';
+COMMENT ON TABLE beta_admins IS 'Administrators who can create beta users';
+COMMENT ON TABLE api_key_usage IS 'Tracks API key usage for monitoring and analytics';
+COMMENT ON COLUMN beta_users.api_key IS 'Unique API key for authentication (format: auxly_beta_*)';
+COMMENT ON COLUMN beta_users.is_active IS 'Whether the user can currently login (for revocation)';
+COMMENT ON COLUMN beta_users.created_by IS 'Admin username who created this beta user';
+
+

@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "auxly": {
+      "command": "node",
+      "args": [
+        "C:\\Auxly\\mcp-server\\dist\\index.js"
+      ],
+      "env": {
+        "AUXLY_API_URL": "http://localhost:7000",
+        "AUXLY_API_KEY": "auxly_16c3077b87d9d62e7ce6da4f4940d418eb85a6fa5d114bf57a523533399f0984"
+      }
+    }
+  }
+}
+

@@ -1,0 +1,12 @@
+{
+  "dev": {
+    "host": "rnd.tzamun.com",
+    "port": 5432,
+    "database": "Auxly",
+    "user": "wsamoum",
+    "password": "W@el401962",
+    "migrations-table": "pgmigrations",
+    "tsconfig": "tsconfig.json"
+  }
+}
+

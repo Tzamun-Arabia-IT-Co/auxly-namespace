@@ -1,29 +1,9 @@
-# Node modules
-node_modules/
+# Todo2 - AI-powered task management directories
+.cursor/rules/todo2-overview.mdc
+.cursor/rules/todo2.mdc
+.cursor/mcp.json
+.todo2/
+node_modules
 
-# Build outputs
-*.vsix
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-
-# Auxly internal data (auto-added by extension)
+# Auxly - AI Task Management (internal data)
 .auxly/
-
-# Logs
-*.log
-npm-debug.log*
-
-# Environment
-.env
-.env.local
-
-# Temporary files
-*.tmp
-*.temp
-

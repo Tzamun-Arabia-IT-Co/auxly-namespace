@@ -1,0 +1,153 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_1 = require("../middleware/auth");
+const api_key_1 = require("../middleware/api-key");
+const task_service_1 = require("../services/task.service");
+const router = (0, express_1.Router)();
+/**
+ * Middleware to handle both JWT and API Key authentication
+ */
+const authenticateEither = (req, res, next) => {
+    // Check if Authorization header (JWT) or X-API-Key header exists
+    const hasJWT = req.headers.authorization?.startsWith('Bearer ');
+    const hasAPIKey = req.headers['x-api-key'];
+    if (hasJWT) {
+        // Use JWT authentication
+        (0, auth_1.authenticate)(req, res, next);
+    }
+    else if (hasAPIKey) {
+        // Use API Key authentication
+        (0, api_key_1.authenticateApiKey)(req, res, next);
+    }
+    else {
+        res.status(401).json({ error: 'Authentication required' });
+    }
+};
+/**
+ * Get user ID from either JWT or API Key auth
+ */
+const getUserId = (req) => {
+    if (req.user) {
+        return req.user.id; // From JWT
+    }
+    else if (req.apiKeyUser) {
+        return req.apiKeyUser.user_id; // From API Key
+    }
+    throw new Error('No authenticated user');
+};
+/**
+ * GET /tasks
+ * Get all tasks for the authenticated user
+ * Protected by JWT or API Key authentication
+ */
+router.get('/', authenticateEither, async (req, res) => {
+    try {
+        console.log('🔍 GET /tasks - User authenticated:', req.user ? `JWT user ${req.user.id}` : req.apiKeyUser ? `API key user ${req.apiKeyUser.user_id}` : 'NONE');
+        const userId = getUserId(req);
+        console.log('📋 Fetching tasks for user ID:', userId);
+        const { status } = req.query;
+        const tasks = await (0, task_service_1.getTasks)(userId, status);
+        console.log(`✅ Found ${tasks.length} tasks for user ${userId}`);
+        res.status(200).json(tasks);
+    }
+    catch (error) {
+        console.error('❌ Get tasks error:', error);
+        res.status(500).json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' });
+    }
+});
+/**
+ * GET /tasks/:id
+ * Get a specific task by ID
+ * Protected by JWT or API Key authentication
+ */
+router.get('/:id', authenticateEither, async (req, res) => {
+    try {
+        const userId = getUserId(req);
+        const task = await (0, task_service_1.getTaskById)(parseInt(req.params.id), userId);
+        if (!task) {
+            res.status(404).json({ error: 'Task not found' });
+            return;
+        }
+        res.status(200).json(task);
+    }
+    catch (error) {
+        console.error('Get task error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+/**
+ * POST /tasks
+ * Create a new task
+ * Protected by JWT or API Key authentication
+ */
+router.post('/', authenticateEither, async (req, res) => {
+    try {
+        const userId = getUserId(req);
+        const { title, description, priority, tags } = req.body;
+        if (!title) {
+            res.status(400).json({ error: 'Title is required' });
+            return;
+        }
+        const task = await (0, task_service_1.createTask)({
+            user_id: userId,
+            title,
+            description,
+            priority: priority || 'medium',
+            tags: tags || [],
+        });
+        res.status(201).json(task);
+    }
+    catch (error) {
+        console.error('Create task error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+/**
+ * PUT /tasks/:id
+ * Update an existing task
+ * Protected by JWT or API Key authentication
+ */
+router.put('/:id', authenticateEither, async (req, res) => {
+    try {
+        const userId = getUserId(req);
+        const { title, description, status, priority } = req.body;
+        const task = await (0, task_service_1.updateTask)(parseInt(req.params.id), userId, {
+            title,
+            description,
+            status,
+            priority,
+        });
+        if (!task) {
+            res.status(404).json({ error: 'Task not found' });
+            return;
+        }
+        res.status(200).json(task);
+    }
+    catch (error) {
+        console.error('Update task error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+/**
+ * DELETE /tasks/:id
+ * Delete a task
+ * Protected by JWT or API Key authentication
+ */
+router.delete('/:id', authenticateEither, async (req, res) => {
+    try {
+        const userId = getUserId(req);
+        const success = await (0, task_service_1.deleteTask)(parseInt(req.params.id), userId);
+        if (!success) {
+            res.status(404).json({ error: 'Task not found' });
+            return;
+        }
+        res.status(204).send();
+    }
+    catch (error) {
+        console.error('Delete task error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+exports.default = router;
+//# sourceMappingURL=tasks.js.map
