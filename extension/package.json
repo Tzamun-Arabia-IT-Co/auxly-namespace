@@ -2,7 +2,7 @@
   "name": "auxly-extension",
   "displayName": "Auxly by Tzamun - AI Task Management",
   "description": "Enhance your development with AI that truly collaborates - featuring AI question popups with sound alerts, FORCED dual research (Technical + Business), and smart approval workflows. Works in Cursor, Windsurf, PearAI, and Trae! Made in Saudi Arabia 🇸🇦 with ❤️ for developers",
-  "version": "6.0.3",
+  "version": "0.1.7",
   "publisher": "Auxly",
   "engines": {
     "vscode": "^1.85.0"
