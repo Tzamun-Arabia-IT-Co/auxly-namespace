@@ -184,8 +184,17 @@ export class MCPConfiguration {
             
             // Get API credentials
             const apiKey = await this.context.globalState.get<string>('API_KEY') || 'your-api-key-here';
-            const config = vscode.workspace.getConfiguration('auxly');
-            const apiUrl = config.get<string>('apiUrl') || 'https://auxly.tzamun.com:8000';
+            
+            // REMOTE SSH FIX: Safe config access
+            let apiUrl = 'https://auxly.tzamun.com:8000'; // Default
+            try {
+                const config = vscode.workspace.getConfiguration('auxly');
+                if (config) {
+                    apiUrl = config.get<string>('apiUrl') || apiUrl;
+                }
+            } catch (configError) {
+                this.outputChannel.appendLine(`[Config] Warning: Could not read configuration (remote SSH?), using default API URL`);
+            }
             
             this.outputChannel.appendLine(`[Config] API URL: ${apiUrl}`);
             this.outputChannel.appendLine(`[Config] User settings: ${settingsPath}`);

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { detectEditor, getEditorDisplayName } from '../utils/editor-detector';
 import { registerMCPServerWithCursorAPI, unregisterMCPServer } from './mcp-cursor-api';
 import { configureWindsurfMCP } from './mcp-windsurf-config';
+import { WindsurfMCPHealthMonitor } from './windsurf-mcp-health-monitor';
 import { configurePearAIMCP } from './mcp-pearai-config';
 import { configureTraeMCP } from './mcp-trae-config';
 
@@ -122,6 +123,22 @@ export async function setupMCP(context: vscode.ExtensionContext): Promise<void> 
     }
 }
 
+/**
+ * Manually restart Windsurf MCP server (for command/testing)
+ */
+export async function restartWindsurfMCP(): Promise<boolean> {
+    const editor = detectEditor();
+    if (editor !== 'windsurf') {
+        console.log('[Auxly MCP] Not running in Windsurf, restart not applicable');
+        return false;
+    }
+    
+    console.log('[Auxly MCP] 🔄 Manual Windsurf MCP restart requested');
+    const monitor = WindsurfMCPHealthMonitor.getInstance();
+    return await monitor.manualRestart();
+}
+
 // Export for backward compatibility and direct use
 export { registerMCPServerWithCursorAPI, unregisterMCPServer } from './mcp-cursor-api';
+export { WindsurfMCPHealthMonitor } from './windsurf-mcp-health-monitor';
 

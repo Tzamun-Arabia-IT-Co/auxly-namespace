@@ -515,23 +515,39 @@ function registerCommands(context: vscode.ExtensionContext) {
         // Auto-restart (from health monitor) should be silent
         const isSilent = options?.silent === true;
         
+        // Detect editor type
+        const { detectEditor } = await import('./utils/editor-detector');
+        const editor = detectEditor();
+        
         let confirm = 'Restart';
         if (!isSilent) {
             // Show confirmation only for manual restarts
             confirm = await vscode.window.showWarningMessage(
-                '🔄 This will restart the MCP server (requires window reload).',
+                editor === 'windsurf' 
+                    ? '🔄 This will restart the MCP server (auto-reconnect enabled).'
+                    : '🔄 This will restart the MCP server (requires window reload).',
                 'Restart',
                 'Cancel'
             ) || 'Cancel';
         }
         
         if (confirm === 'Restart') {
-            if (mcpHealthMonitor) {
+            if (editor === 'windsurf') {
+                // Windsurf-specific restart using health monitor
+                const { WindsurfMCPHealthMonitor } = await import('./mcp/windsurf-mcp-health-monitor');
+                const monitor = WindsurfMCPHealthMonitor.getInstance();
+                const success = await monitor.manualRestart();
+                
+                if (success && !isSilent) {
+                    vscode.window.showInformationMessage('✅ MCP server restarted successfully');
+                } else if (!success && !isSilent) {
+                    vscode.window.showErrorMessage('❌ Failed to restart MCP server');
+                }
+            } else if (mcpHealthMonitor) {
+                // Cursor-specific restart using existing monitor
                 const success = await mcpHealthMonitor.restartMCPServer();
-                if (!success) {
-                    if (!isSilent) {
-                        vscode.window.showErrorMessage('❌ Failed to restart MCP server');
-                    }
+                if (!success && !isSilent) {
+                    vscode.window.showErrorMessage('❌ Failed to restart MCP server');
                 }
             }
         }
@@ -632,12 +648,20 @@ function registerCommands(context: vscode.ExtensionContext) {
 
 /**
  * Initialize extension components
+ * REMOTE SSH FIX: Safely handles configuration access
  */
 async function initializeExtension(context: vscode.ExtensionContext) {
     try {
-        // Get configuration safely
-        const config = vscode.workspace.getConfiguration('auxly');
-        const apiUrl = config.get<string>('apiUrl') || 'https://auxly.tzamun.com:8000';
+        // Get configuration safely - REMOTE SSH FIX
+        let apiUrl = 'https://auxly.tzamun.com:8000'; // Default
+        try {
+            const config = vscode.workspace.getConfiguration('auxly');
+            if (config) {
+                apiUrl = config.get<string>('apiUrl') || apiUrl;
+            }
+        } catch (configError) {
+            console.warn('[Extension Init] Could not read configuration (remote SSH?), using default API URL:', configError);
+        }
         
         console.log(`📡 Auxly API URL: ${apiUrl}`);
 

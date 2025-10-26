@@ -4,22 +4,22 @@
 
 **Enhance your development with AI that truly collaborates** - featuring AI question popups with sound alerts, FORCED dual research, and smart approval workflows that ensure quality code and well-informed decisions.
 
-**✨ NEW: Works in Cursor and Windsurf!** More AI editors coming soon.
+**✨ NEW: Now supports Windsurf!** Works in both Cursor and Windsurf with automatic MCP configuration and auto-restart on crash.
 
 ---
 
 ## 🎯 Supported AI Code Editors
 
-Auxly works seamlessly in **major AI code editors** with automatic MCP configuration:
+Auxly works seamlessly in **multiple AI code editors** with automatic MCP configuration:
 
-| Editor | Status | MCP Setup |
-|--------|--------|-----------|
-| **🎯 Cursor** | ✅ Fully Supported | Automatic (programmatic API) |
-| **🌊 Windsurf** | ✅ Fully Supported | Automatic (config file) |
-| **🍐 PearAI** | 🚧 Coming Soon | Planned |
-| **🚀 Trae** | 🚧 Coming Soon | Planned |
+| Editor | Status | MCP Setup | Auto-Restart |
+|--------|--------|-----------|--------------|
+| **🎯 Cursor** | ✅ Fully Supported | Automatic (programmatic API) | ✅ Built-in |
+| **🌊 Windsurf** | ✅ Fully Supported | Automatic (config file) | ✅ Custom Monitor |
+| **🍐 PearAI** | 🚧 Coming Soon | - | - |
+| **🚀 Trae** | 🚧 Coming Soon | - | - |
 
-**One VSIX, Multiple Editors!** Currently supporting Cursor & Windsurf, with more on the way.
+**One VSIX, Multiple Editors!** Install once, works in Cursor and Windsurf.
 
 ---
 
@@ -67,12 +67,15 @@ AI requests approval for:
 - Comments system (notes, results, manual setup instructions)
 - AI working indicator (see what AI is actively working on)
 
-### 🎯 **Auto-Generate Cursor Rules**
-Auxly automatically creates and maintains `.cursor/rules/` that enforce:
+### **🎯 Auto-Generate Workflow Rules**
+Auxly automatically creates and maintains editor-specific rules that enforce:
 - Mandatory research protocol
 - Approval workflows for critical changes
 - Task-based development workflow
 - Quality standards and best practices
+
+**Cursor**: `.cursor/rules/` (7 .mdc files)
+**Windsurf**: `.windsurf/rules/` (7 .md files with always_on triggers)
 
 ---
 
@@ -84,15 +87,26 @@ Auxly automatically creates and maintains `.cursor/rules/` that enforce:
 3. Click **Install**
 4. **Done!** MCP auto-registers automatically
 
-### For Windsurf/PearAI/Trae Users:
+### For Windsurf Users:
 1. Download the `.vsix` file from [releases](https://github.com/Tzamun-Arabia-IT-Co/auxly-namespace/releases)
-2. Open your editor's Extensions view
-3. Click "Install from VSIX..." (⋯ menu)
+2. Open Windsurf Extensions (Ctrl+Shift+X)
+3. Click "Install from VSIX..." (⋯ menu at top right)
 4. Select the downloaded `.vsix` file
-5. **Reload window** when prompted
-6. **Done!** MCP auto-configures for your editor
+5. **Window will reload automatically** to activate MCP tools
+6. **Done!** Dashboard opens and you can enter your API key
 
-**Note:** Windsurf, PearAI, and Trae require a window reload after installation to activate MCP tools.
+**Note:** Windsurf requires a window reload after installation to activate MCP tools and workflow rules. After the reload, **MCP auto-restart is enabled** - no more manual reloads needed!
+
+### 🔄 Windsurf Auto-Restart Feature
+Unlike Cursor which manages MCP processes automatically, Windsurf previously required window reloads when the MCP process crashed. **We've fixed this!**
+
+**How it works:**
+- Extension monitors MCP server health every 15 seconds
+- If process dies, it automatically restarts within 15 seconds
+- No manual window reloads needed (except for initial setup)
+- You'll see: "✅ Auxly MCP server restarted automatically"
+
+**Learn more:** See `docs/windsurf-mcp-auto-restart.md` and `docs/windsurf-mcp-quick-start.md`
 
 ---
 

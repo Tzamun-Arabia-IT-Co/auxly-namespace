@@ -79,7 +79,7 @@ export async function configureMCPServerInSettings(
             env: {
                 AUXLY_WORKSPACE_PATH: workspacePath || '',
                 AUXLY_WORKSPACE_ID: workspaceHash,
-                AUXLY_API_URL: vscode.workspace.getConfiguration('auxly').get<string>('apiUrl') || 'https://auxly.tzamun.com:8000'
+                AUXLY_API_URL: vscode.workspace.getConfiguration('auxly')?.get<string>('apiUrl') || 'https://auxly.tzamun.com:8000'
             }
         };
         

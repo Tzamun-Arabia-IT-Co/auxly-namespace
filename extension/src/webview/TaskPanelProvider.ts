@@ -214,7 +214,7 @@ export class TaskPanelProvider {
         console.log('💬 Webview message received:', message.command);
         switch (message.command) {
             case 'connect':
-                await this.handleConnect(message.apiKey);
+                await this.handleConnect(message.apiKey, message.os);
                 break;
             case 'disconnect':
                 await this.handleDisconnect();
@@ -338,12 +338,13 @@ export class TaskPanelProvider {
         }
     }
 
-    private async handleConnect(apiKey?: string) {
+    private async handleConnect(apiKey?: string, os?: string) {
         if (apiKey) {
-            // API key provided from webview modal - use it directly
+            // API key provided from webview modal - use it directly with selected OS
             const authService = getAuthService();
             try {
-            await authService.connectWithApiKey(apiKey);
+                console.log(`🔑 Connecting with API key using OS: ${os || 'auto-detect'}`);
+                await authService.connectWithApiKey(apiKey, os);
                 // Success - send success message to webview
                 if (this.panel) {
                     this.panel.webview.postMessage({
@@ -3150,6 +3151,53 @@ export class TaskPanelProvider {
             <p style="margin-bottom: 16px; color: #8b949e;">Enter your Auxly API key to connect your account:</p>
             <input type="password" id="apiKeyInput" class="input-modal-field" placeholder="auxly_xxxxxxxxxxxxx..." />
             
+            <!-- Operating System Selector -->
+            <div style="margin-top: 16px;">
+              <label style="display: block; margin-bottom: 12px; color: #d1d5db; font-size: 13px; font-weight: 500;">
+                🖥️ Select Your Operating System:
+              </label>
+              
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Windows Option -->
+                <label class="os-radio-option" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(22, 27, 34, 0.6); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                  <input type="radio" name="osSelection" value="windows" style="width: 18px; height: 18px; cursor: pointer; accent-color: #6366f1;">
+                  <svg width="28" height="28" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.011 41.34-47.318-6.678-.066-34.739z" fill="#00ADEF"/>
+                  </svg>
+                  <div style="flex: 1;">
+                    <div style="font-size: 14px; font-weight: 600; color: #e5e7eb;">Windows</div>
+                    <div style="font-size: 11px; color: #9ca3af;">Windows 10, 11, Server</div>
+                  </div>
+                </label>
+                
+                <!-- Linux/Unix Option -->
+                <label class="os-radio-option" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(22, 27, 34, 0.6); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                  <input type="radio" name="osSelection" value="unix" style="width: 18px; height: 18px; cursor: pointer; accent-color: #6366f1;">
+                                    <img src="${webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'resources', 'linux-tux.png'))}" width="28" height="28" style="object-fit: contain;" alt="Linux Tux">
+                  <div style="flex: 1;">
+                    <div style="font-size: 14px; font-weight: 600; color: #e5e7eb;">Linux / Unix</div>
+                    <div style="font-size: 11px; color: #9ca3af;">Ubuntu, Debian, Fedora, etc.</div>
+                  </div>
+                </label>
+                
+                <!-- macOS Option -->
+                <label class="os-radio-option" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(22, 27, 34, 0.6); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                  <input type="radio" name="osSelection" value="darwin" style="width: 18px; height: 18px; cursor: pointer; accent-color: #6366f1;">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" fill="#ffffff"/>
+                  </svg>
+                  <div style="flex: 1;">
+                    <div style="font-size: 14px; font-weight: 600; color: #e5e7eb;">macOS</div>
+                    <div style="font-size: 11px; color: #9ca3af;">macOS 10.15+</div>
+                  </div>
+                </label>
+              </div>
+              
+              <div style="margin-top: 12px; font-size: 11px; color: #9ca3af;">
+                ℹ️ This helps us use the correct method to securely connect to our API.
+              </div>
+            </div>
+            
             <!-- Sign Up Link -->
             <div style="margin-top: 16px; padding: 12px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; text-align: center;">
               <div style="font-size: 13px; color: #d1d5db; margin-bottom: 8px;">Don't have an API key?</div>
@@ -4284,9 +4332,29 @@ export class TaskPanelProvider {
             if (modal) {
                 modal.style.setProperty('display', 'flex', 'important');
                 const input = document.getElementById('apiKeyInput');
+                const osRadios = document.querySelectorAll('input[name="osSelection"]');
+                const submitBtn = document.getElementById('apiKeyModalSubmit');
+                
                 if (input) {
                     input.value = '';
                     setTimeout(() => input.focus(), 100);
+                }
+                
+                // Reset radio buttons and their visual styles
+                osRadios.forEach(radio => {
+                    radio.checked = false;
+                    const label = radio.closest('.os-radio-option');
+                    if (label) {
+                        label.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                        label.style.background = 'rgba(22, 27, 34, 0.6)';
+                    }
+                });
+                
+                // Disable submit button until OS is selected
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.5';
+                    submitBtn.style.cursor = 'not-allowed';
                 }
                 
                 // 🔧 FIX: Hide cancel button and close button in forced mode
@@ -4317,13 +4385,23 @@ export class TaskPanelProvider {
 
         function submitApiKey() {
             const input = document.getElementById('apiKeyInput');
+            const selectedRadio = document.querySelector('input[name="osSelection"]:checked');
             const apiKey = input.value.trim();
+            const selectedOS = selectedRadio ? selectedRadio.value : '';
             const submitBtn = document.querySelector('#apiKeyModal .primary-button');
             const errorDiv = document.getElementById('apiKeyError');
             
             if (!apiKey) {
                 if (errorDiv) {
                     errorDiv.textContent = 'Please enter an API key';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            }
+            
+            if (!selectedOS) {
+                if (errorDiv) {
+                    errorDiv.textContent = 'Please select your operating system';
                     errorDiv.style.display = 'block';
                 }
                 return;
@@ -4344,7 +4422,8 @@ export class TaskPanelProvider {
             // Don't close modal yet - wait for verification result
             vscode.postMessage({
                 command: 'connect',
-                apiKey: apiKey
+                apiKey: apiKey,
+                os: selectedOS
             });
         }
 
@@ -5085,6 +5164,36 @@ export class TaskPanelProvider {
             const apiKeyModalCancel = document.getElementById('apiKeyModalCancel');
             const apiKeyModalSubmit = document.getElementById('apiKeyModalSubmit');
             const apiKeyModal = document.getElementById('apiKeyModal');
+            const osRadios = document.querySelectorAll('input[name="osSelection"]');
+            
+            // Radio button listeners - enable Connect button and update visual state
+            osRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const selectedOS = e.target.value;
+                    
+                    // Update visual state of all radio options
+                    osRadios.forEach(r => {
+                        const label = r.closest('.os-radio-option');
+                        if (label) {
+                            if (r.checked) {
+                                label.style.borderColor = '#6366f1';
+                                label.style.background = 'rgba(99, 102, 241, 0.15)';
+                            } else {
+                                label.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                label.style.background = 'rgba(22, 27, 34, 0.6)';
+                            }
+                        }
+                    });
+                    
+                    // Enable Connect button
+                    if (apiKeyModalSubmit) {
+                        apiKeyModalSubmit.disabled = false;
+                        apiKeyModalSubmit.style.opacity = '1';
+                        apiKeyModalSubmit.style.cursor = 'pointer';
+                        console.log('OS selected: ' + selectedOS + ' - Connect button enabled');
+                    }
+                });
+            });
             
             if (apiKeyModalClose) {
                 apiKeyModalClose.addEventListener('click', (e) => {

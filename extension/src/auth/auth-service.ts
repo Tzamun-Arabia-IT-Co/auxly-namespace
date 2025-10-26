@@ -234,8 +234,10 @@ export class AuthService {
 
     /**
      * Connect with API key
+     * @param apiKey - The API key to connect with
+     * @param os - Operating system override (windows/unix/darwin) for API verification
      */
-    async connectWithApiKey(apiKey?: string): Promise<boolean> {
+    async connectWithApiKey(apiKey?: string, os?: string): Promise<boolean> {
         if (!this.apiClient) {
             vscode.window.showErrorMessage('API client not initialized');
             return false;
@@ -273,8 +275,9 @@ export class AuthService {
                 title: 'Connecting to Auxly...',
                 cancellable: false
             }, async () => {
-                // Verify the API key with the backend
-                const verifyResult = await this.apiClient!.verifyApiKey(keyToUse);
+                // Verify the API key with the backend (pass OS parameter)
+                console.log(`🔑 AuthService: Verifying API key with OS: ${os || 'auto-detect'}`);
+                const verifyResult = await this.apiClient!.verifyApiKey(keyToUse, os);
 
                 if (!verifyResult.valid) {
                     vscode.window.showErrorMessage(`❌ Invalid API key: ${verifyResult.error || 'Unknown error'}`);

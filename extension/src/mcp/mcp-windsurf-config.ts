@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
+import { WindsurfMCPReconnectHelper } from './windsurf-mcp-reconnect-helper';
 
 /**
  * Auxly MCP Configuration for Windsurf Editor
@@ -11,6 +12,9 @@ import * as os from 'os';
  * Official Windsurf MCP Configuration Location:
  * - Windows: %USERPROFILE%\.codeium\windsurf\mcp_config.json
  * - macOS/Linux: ~/.codeium/windsurf/mcp_config.json
+ * 
+ * IMPORTANT: Windsurf manages MCP processes internally.
+ * Solution: Detect disconnections and prompt user to reload window.
  */
 
 /**
@@ -77,10 +81,11 @@ export async function configureWindsurfMCP(
         
         // Get extension path and MCP server path
         const extensionPath = context.extensionPath;
-        const mcpServerPath = path.join(extensionPath, 'dist', 'mcp-server', 'index.js');
+        // ✅ CRITICAL FIX: Use start-with-restart.js for auto-restart functionality
+        const mcpServerPath = path.join(extensionPath, 'dist', 'mcp-server', 'start-with-restart.js');
         
         console.log('[Auxly MCP] 📦 Extension Path:', extensionPath);
-        console.log('[Auxly MCP] 🔌 MCP Server Path:', mcpServerPath);
+        console.log('[Auxly MCP] 🔌 MCP Server Path (with auto-restart):', mcpServerPath);
         
         // Verify MCP server exists
         const serverExists = fs.existsSync(mcpServerPath);
@@ -104,8 +109,8 @@ export async function configureWindsurfMCP(
         
         console.log('[Auxly MCP] 🔑 Workspace ID (hash):', workspaceHash);
         
-        // Get API URL from configuration
-        const apiUrl = vscode.workspace.getConfiguration('auxly').get<string>('apiUrl') 
+        // Get API URL from configuration - REMOTE SSH FIX
+        const apiUrl = vscode.workspace.getConfiguration('auxly')?.get<string>('apiUrl') 
             || 'https://auxly.tzamun.com:8000';
         
         // Find Node.js executable (NOT Windsurf.exe!)
@@ -192,6 +197,12 @@ export async function configureWindsurfMCP(
         console.log('[Auxly MCP] ✅ Successfully wrote Windsurf MCP config');
         console.log('[Auxly MCP] Config file:', configPath);
         console.log('[Auxly MCP] 💡 Reload Windsurf to activate MCP tools');
+        
+        // ✅ WINDSURF RECONNECT HELPER: Start disconnect detection
+        console.log('[Auxly MCP] 🔍 Starting MCP disconnect detection...');
+        const reconnectHelper = WindsurfMCPReconnectHelper.getInstance();
+        reconnectHelper.startMonitoring();
+        console.log('[Auxly MCP] ✅ Disconnect detection started - will prompt reload if MCP disconnects');
         
         return true;
         

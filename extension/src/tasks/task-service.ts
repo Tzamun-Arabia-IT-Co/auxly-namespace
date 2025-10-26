@@ -302,8 +302,14 @@ export class TaskService {
                     // Refresh tasks to update UI
                     await this.fetchTasks(true);
 
-                    const config = vscode.workspace.getConfiguration('auxly');
-                    if (config.get<boolean>('enableNotifications', true)) {
+                    // REMOTE SSH FIX: Safe config access
+                    try {
+                        const config = vscode.workspace.getConfiguration('auxly');
+                        if (config && config.get<boolean>('enableNotifications', true)) {
+                            vscode.window.showInformationMessage(`✅ Task created: ${newTask.title}`);
+                        }
+                    } catch (configError) {
+                        // Show notification anyway if config fails
                         vscode.window.showInformationMessage(`✅ Task created: ${newTask.title}`);
                     }
 
@@ -347,9 +353,17 @@ export class TaskService {
             // Refresh tasks to update UI
             await this.fetchTasks(true);
 
-            const config = vscode.workspace.getConfiguration('auxly');
-            if (config.get<boolean>('enableNotifications', true) && updates.status) {
-                vscode.window.showInformationMessage(`✅ Task moved to ${updates.status.replace('_', ' ')}`);
+            // REMOTE SSH FIX: Safe config access
+            try {
+                const config = vscode.workspace.getConfiguration('auxly');
+                if (config && config.get<boolean>('enableNotifications', true) && updates.status) {
+                    vscode.window.showInformationMessage(`✅ Task moved to ${updates.status.replace('_', ' ')}`);
+                }
+            } catch (configError) {
+                // Show notification anyway if config fails and status changed
+                if (updates.status) {
+                    vscode.window.showInformationMessage(`✅ Task moved to ${updates.status.replace('_', ' ')}`);
+                }
             }
 
             return updatedTask;
@@ -465,8 +479,14 @@ export class TaskService {
                     // Refresh tasks to update UI
                     await this.fetchTasks(true);
 
-                    const config = vscode.workspace.getConfiguration('auxly');
-                    if (config.get<boolean>('enableNotifications', true)) {
+                    // REMOTE SSH FIX: Safe config access
+                    try {
+                        const config = vscode.workspace.getConfiguration('auxly');
+                        if (config && config.get<boolean>('enableNotifications', true)) {
+                            vscode.window.showInformationMessage('✅ Task deleted');
+                        }
+                    } catch (configError) {
+                        // Show notification anyway if config fails
                         vscode.window.showInformationMessage('✅ Task deleted');
                     }
 

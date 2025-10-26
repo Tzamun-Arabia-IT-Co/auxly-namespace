@@ -54,9 +54,17 @@ export class ApiClient {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         
         // Get user configuration for SSL handling
-        const vsConfig = vscode.workspace.getConfiguration('auxly');
-        // Default to true to allow Let's Encrypt certificate
-        const allowInsecureSSL = vsConfig.get<boolean>('allowInsecureSSL', true);
+        // REMOTE SSH FIX: Use try-catch to handle cases where config might not be available
+        let allowInsecureSSL = true; // Default to true for Let's Encrypt
+        try {
+            const vsConfig = vscode.workspace.getConfiguration('auxly');
+            if (vsConfig) {
+                allowInsecureSSL = vsConfig.get<boolean>('allowInsecureSSL', true);
+            }
+        } catch (error) {
+            console.warn('[API Client] Could not read configuration (remote SSH?), using defaults:', error);
+            // Continue with default value
+        }
         
         // Create HTTPS agent with SSL/TLS configuration
         // This helps handle self-signed certificates and SSL errors
@@ -532,8 +540,10 @@ export class ApiClient {
 
     /**
      * Verify API key with backend
+     * @param apiKey - API key to verify
+     * @param osOverride - Operating system override (windows/unix/darwin) for manual OS selection
      */
-    async verifyApiKey(apiKey?: string): Promise<{ valid: boolean; user?: any; error?: string }> {
+    async verifyApiKey(apiKey?: string, osOverride?: string): Promise<{ valid: boolean; user?: any; error?: string }> {
         try {
             // If no API key provided, try to get from storage
             const keyToVerify = apiKey || await this.getApiKey();
@@ -542,11 +552,23 @@ export class ApiClient {
             }
 
             // Use external HTTP client (child process) to completely bypass Electron
-            const config = vscode.workspace.getConfiguration('auxly');
-            const apiUrl = config.get<string>('apiUrl') || 'https://auxly.tzamun.com:8000';
+            // REMOTE SSH FIX: Safe config access
+            let apiUrl = 'https://auxly.tzamun.com:8000'; // Default
+            try {
+                const config = vscode.workspace.getConfiguration('auxly');
+                if (config) {
+                    apiUrl = config.get<string>('apiUrl') || apiUrl;
+                }
+            } catch (configError) {
+                console.warn('[API Client] Could not read configuration (remote SSH?), using default API URL:', configError);
+            }
+            
             const fullUrl = `${apiUrl}${API_ENDPOINTS.API_KEYS.VERIFY}`;
 
             console.log('🔒 Verifying API key with external HTTP client (child process):', fullUrl);
+            if (osOverride) {
+                console.log(`🖥️ Using OS override: ${osOverride} (user-selected)`);
+            }
 
             // Include device tracking headers for 2-device limit enforcement
             const response = await externalHttp.externalHttpGet(fullUrl, {
@@ -556,7 +578,7 @@ export class ApiClient {
                 'x-device-name': this.getDeviceName(),
                 'x-os-info': this.getOsInfo(),
                 'x-browser-info': 'VS Code Extension'
-            });
+            }, osOverride);
 
             console.log('✅ External HTTP response:', response.status);
 
@@ -822,13 +844,23 @@ export class ApiClient {
 
 /**
  * Initialize and get API client singleton
+ * REMOTE SSH FIX: Safely handles cases where configuration might not be available
  */
 export function initializeApiClient(context: vscode.ExtensionContext): ApiClient {
-    const config = vscode.workspace.getConfiguration('auxly');
-    const apiUrl = config.get<string>('apiUrl') || 'https://auxly.tzamun.com:8000';
-    // Default to true to handle self-signed certificates automatically
-    // TODO: Set to false once production has valid SSL certificate from Let's Encrypt
-    const allowInsecureSSL = config.get<boolean>('allowInsecureSSL', true);
+    // REMOTE SSH FIX: Wrap configuration access in try-catch
+    let apiUrl = 'https://auxly.tzamun.com:8000'; // Default
+    let allowInsecureSSL = true; // Default
+    
+    try {
+        const config = vscode.workspace.getConfiguration('auxly');
+        if (config) {
+            apiUrl = config.get<string>('apiUrl') || apiUrl;
+            allowInsecureSSL = config.get<boolean>('allowInsecureSSL', true);
+        }
+    } catch (error) {
+        console.warn('[API Client Init] Could not read configuration (remote SSH?), using defaults:', error);
+        // Continue with default values
+    }
     
     // Log SSL configuration for debugging
     console.log('🔒 Auxly API Client: Initializing with URL:', apiUrl);

@@ -49,8 +49,8 @@ export async function configurePearAIMCP(
         console.log(`[Auxly MCP] Workspace ID: ${workspaceHash}`);
         console.log(`[Auxly MCP] MCP Server: ${mcpServerPath}`);
         
-        // Get API URL from configuration
-        const apiUrl = vscode.workspace.getConfiguration('auxly').get<string>('apiUrl') 
+        // Get API URL from configuration - REMOTE SSH FIX
+        const apiUrl = vscode.workspace.getConfiguration('auxly')?.get<string>('apiUrl') 
             || 'https://auxly.tzamun.com:8000';
         
         // Prepare MCP server configuration for PearAI
