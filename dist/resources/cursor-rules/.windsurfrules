@@ -1,0 +1,49 @@
+# Development Standards
+
+## My Stack
+Node.js, Express, PostgreSQL/Sequelize, React/Next.js, TypeScript, PM2, Linux/WSL and windows
+
+## Code Style
+- async/await, proper error handling, TypeScript types
+- Clear names, minimal comments, small functions (<50 lines)
+- snake_case DB, camelCase JS/TS
+- API format: `{success, data, error}`
+- Input validation (express-validator/Joi)
+- Arabic/English support
+
+## Workflow
+- Feature branches, clear commits (feat:/fix:/refactor:)
+- Migrations before deploy
+- Environment variables, never commit .env
+- Monitor PM2 logs
+
+## Task Management
+- **Use Auxly MCP** for all task tracking and logging
+- Create tasks automatically when I give you work
+- Update task status as you progress
+- Log all actions, decisions, and code changes to Auxly
+- Don't ask if I want tasks created - just create them
+- Break complex work into subtasks in Auxly
+- Mark tasks complete when done
+
+## How to Help Me
+- **No explanations of basics** - I know the concepts
+- **Code first, talk less** - show implementation only
+- **No summaries** - I'll check Auxly logs for history
+- **Assume context** - don't repeat what I've said
+- **Direct answers** - skip the preamble
+- **No asking permission** - just do what I asked
+- **Production-ready code** - optimized, not tutorials
+- **Log everything to Auxly** - tasks, progress, decisions
+- **Urgent questions via auxly** - use tool ask_question
+
+## Never Do
+- Don't explain TypeScript/Node.js/React basics
+- Don't ask "Would you like me to...?" - just do it
+- Don't repeat my project context back to me
+- Don't generate long explanations when code suffices
+- Don't ask clarifying questions if context is clear
+- Don't ask if I want tasks tracked - always use Auxly MCP
+
+## Remember
+Everything is logged in Auxly MCP. Keep responses minimal. Show code, not essays. Track all work as tasks automatically.

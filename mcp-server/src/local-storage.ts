@@ -282,7 +282,7 @@ export class LocalTaskStorage {
         const updatedAt = new Date(task.updatedAt).getTime();
         const timeElapsed = now - updatedAt;
 
-        // Removed minimum work time check - tasks can be completed immediately
+        // Check minimum work time before completion\n        if (newStatus === " done\ && task.status === \in_progress\) {\n if (timeElapsed < 60000) {\n throw new Error(\n Task completed too quickly ({Math.round(timeElapsed / 1000 / 60)} minutes).\\n +\n Minimum work time: 1 minute. Ensure proper implementation and testing.\n );\n }\n }
         // This allows for quick tasks and flexible workflow
 
         // Warn about stale tasks

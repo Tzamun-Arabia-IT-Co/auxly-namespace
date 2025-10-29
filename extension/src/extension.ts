@@ -60,10 +60,10 @@ async function autoCreateEditorRules(context: vscode.ExtensionContext): Promise<
         
         const ruleFilePath = path.join(workspaceRoot, ruleFileName);
 
-        // Check if rule file already exists
+        // Check if rule file already exists - ALWAYS UPDATE to latest version
         if (fs.existsSync(ruleFilePath)) {
-            console.log(`[Auxly] Rule file already exists: ${ruleFilePath}`);
-            return;
+            console.log(`[Auxly] Rule file exists - updating to latest version: ${ruleFilePath}`);
+            // Continue to overwrite with latest template
         }
 
         // Read template from extension resources
@@ -84,11 +84,11 @@ async function autoCreateEditorRules(context: vscode.ExtensionContext): Promise<
             return;
         }
 
-        // Copy template to workspace root
+        // Copy template to workspace root (ALWAYS overwrite for updates)
         const templateContent = fs.readFileSync(templatePath, 'utf8');
         fs.writeFileSync(ruleFilePath, templateContent, 'utf8');
 
-        console.log(`[Auxly] ✅ Created ${ruleFileName} in workspace root for ${editorName}`);
+        console.log(`[Auxly] ✅ Updated ${ruleFileName} in workspace root for ${editorName}`);
         
         // Don't show reload prompt here - will show single prompt at end of activation
 
@@ -365,6 +365,55 @@ description: ${ruleName}
 }
 
 /**
+ * Show project rules and .cursorrules content
+ */
+async function showProjectRules() {
+    try {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            vscode.window.showErrorMessage('No workspace folder found');
+            return;
+        }
+
+        const workspaceRoot = workspaceFolders[0].uri.fsPath;
+        let content = '# Auxly Project Rules & Workflow\n\n';
+
+        // Read project-rules.md
+        const projectRulesPath = path.join(workspaceRoot, 'project-rules.md');
+        if (fs.existsSync(projectRulesPath)) {
+            const projectRules = fs.readFileSync(projectRulesPath, 'utf8');
+            content += projectRules + '\n\n';
+        } else {
+            content += '⚠️ project-rules.md not found in workspace root\n\n';
+        }
+
+        // Read .cursorrules
+        const cursorRulesPath = path.join(workspaceRoot, '.cursorrules');
+        if (fs.existsSync(cursorRulesPath)) {
+            const cursorRules = fs.readFileSync(cursorRulesPath, 'utf8');
+            content += '---\n\n# .cursorrules Content\n\n```\n' + cursorRules + '\n```\n';
+        } else {
+            content += '⚠️ .cursorrules not found in workspace root\n';
+        }
+
+        // Create and show document
+        const doc = await vscode.workspace.openTextDocument({
+            content: content,
+            language: 'markdown'
+        });
+        
+        await vscode.window.showTextDocument(doc, {
+            preview: true,
+            viewColumn: vscode.ViewColumn.Beside
+        });
+
+    } catch (error) {
+        console.error('❌ Failed to show project rules:', error);
+        vscode.window.showErrorMessage(`Failed to show project rules: ${(error as Error).message || error}`);
+    }
+}
+
+/**
  * Extension deactivation function
  * Called when the extension is deactivated
  */
@@ -450,6 +499,16 @@ function registerCommands(context: vscode.ExtensionContext) {
     // Logout command
     const logoutCommand = vscode.commands.registerCommand('auxly.logout', async () => {
         await authService.logout();
+    });
+
+    // Show project rules command
+    const showRulesCommand = vscode.commands.registerCommand('auxly.showRules', async () => {
+        await showProjectRules();
+    });
+
+    // /auxly command - Show all project rules and guidelines
+    const showProjectRulesCommand = vscode.commands.registerCommand('auxly.showProjectRules', async () => {
+        await showProjectRules();
     });
 
     // Create task command
@@ -632,6 +691,8 @@ function registerCommands(context: vscode.ExtensionContext) {
         connectCommand,
         disconnectCommand,
         logoutCommand,
+        showRulesCommand,
+        showProjectRulesCommand,
         createTaskCommand,
         openDashboardCommand,
         refreshTasksCommand,

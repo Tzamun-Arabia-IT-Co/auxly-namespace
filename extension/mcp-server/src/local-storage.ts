@@ -66,7 +66,7 @@ export class LocalTaskStorage {
         'production'
     ];
 
-    private readonly MIN_WORK_TIME_MS = 5 * 60 * 1000; // 5 minutes
+    private readonly MIN_WORK_TIME_MS = 0; // No minimum - allow immediate completion
     private readonly MAX_STALE_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours
 
     constructor(workspacePath?: string) {

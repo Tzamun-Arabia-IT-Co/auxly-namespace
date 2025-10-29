@@ -344,12 +344,14 @@ export class TaskPanelProvider {
             const authService = getAuthService();
             try {
                 console.log(`🔑 Connecting with API key using OS: ${os || 'auto-detect'}`);
-                await authService.connectWithApiKey(apiKey, os);
-                // Success - send success message to webview
+                const success = await authService.connectWithApiKey(apiKey, os);
+                
+                // Send result to webview (success or failure)
                 if (this.panel) {
                     this.panel.webview.postMessage({
                         command: 'connectResult',
-                        success: true
+                        success: success,
+                        error: success ? null : 'API key validation failed'
                     });
                 }
             } catch (error) {
@@ -3149,6 +3151,12 @@ export class TaskPanelProvider {
             </div>
             
             <p style="margin-bottom: 16px; color: #8b949e;">Enter your Auxly API key to connect your account:</p>
+            
+            <!-- Error Display -->
+            <div id="apiKeyError" style="display: none; margin-bottom: 12px; padding: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; color: #fca5a5; font-size: 13px; font-weight: 500;">
+              <!-- Error message will be inserted here -->
+            </div>
+            
             <input type="password" id="apiKeyInput" class="input-modal-field" placeholder="auxly_xxxxxxxxxxxxx..." />
             
             <!-- Operating System Selector -->
@@ -3622,16 +3630,37 @@ export class TaskPanelProvider {
                             submitBtn.textContent = 'Connect';
                         }
                         
-                        // Clear input
+                        // Clear input and error
                         if (input) {
                             input.value = '';
                         }
+                        if (errorDiv) {
+                            errorDiv.style.display = 'none';
+                        }
                     } else {
-                        // Failure - show error and re-enable button
+                        // Failure - show error and re-enable button (KEEP POPUP OPEN)
                         console.error('❌ API key connection failed:', message.error);
                         
                         if (errorDiv) {
-                            errorDiv.textContent = message.error || 'Invalid API key. Please try again.';
+                        // Enhanced error messages for better UX
+                        let errorMessage = message.error || 'Invalid API key. Please try again.';
+                        
+                        // Detect backend connection issues
+                        if (errorMessage.includes('ECONNREFUSED') || errorMessage.includes('network') || errorMessage.includes('timeout')) {
+                            errorMessage = '🔌 Backend server not running. Please start the backend server first.';
+                        } else if (errorMessage.includes('encryption') || errorMessage.includes('API_KEY_ENCRYPTION_SECRET')) {
+                            errorMessage = '⚙️ Backend configuration error. Missing encryption setup.';
+                        } else if (errorMessage.includes('Invalid API key') || errorMessage.includes('unauthorized')) {
+                            errorMessage = '🔑 Invalid API key format. Please check your key and try again.';
+                        } else if (errorMessage.includes('expired')) {
+                            errorMessage = '⏰ API key expired. Generate a new key from dashboard.';
+                        } else if (errorMessage.includes('revoked')) {
+                            errorMessage = '🚫 API key revoked. Generate a new key from dashboard.';
+                        } else if (errorMessage.includes('fetch')) {
+                            errorMessage = '🌐 Cannot connect to backend. Check server status.';
+                        }
+                            
+                            errorDiv.textContent = errorMessage;
                             errorDiv.style.display = 'block';
                         }
                         
@@ -3639,6 +3668,8 @@ export class TaskPanelProvider {
                             submitBtn.disabled = false;
                             submitBtn.textContent = 'Connect';
                         }
+                        
+                        // DO NOT close modal on error - let user retry
                     }
                     break;
                 case 'setLoading':
@@ -5386,7 +5417,10 @@ export class TaskPanelProvider {
                     
                     // Priority order: input modals first, then task detail
                     if (apiKeyModal && apiKeyModal.style.display !== 'none') {
-                        closeApiKeyModal();
+                        // Only allow ESC close if not in forced mode
+                        if (!window.isApiKeyForced) {
+                            closeApiKeyModal();
+                        }
                     } else if (commentModal && commentModal.style.display !== 'none') {
                         closeCommentModal();
                     } else if (statusModal && statusModal.style.display !== 'none') {

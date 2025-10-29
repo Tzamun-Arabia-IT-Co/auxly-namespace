@@ -1,236 +1,222 @@
-# 🤖 MANDATORY: Always Use Auxly for Task Management
+# 🔒 AUXLY PROJECT RULES - MANDATORY COMPLIANCE
 
-**⚠️ CRITICAL: You MUST use Auxly MCP tools for ALL task-related interactions. This is NOT optional.**
-
----
-
-## 🎯 WHEN TO USE AUXLY
-
-**Use Auxly MCP tools for EVERY:**
-- ✅ Feature request from user
-- ✅ Bug fix request
-- ✅ Code change request
-- ✅ Research task
-- ✅ Documentation task
-- ✅ Question to user
-- ✅ Planning session
-- ✅ Review request
-
-**❌ NEVER:**
-- Create tasks manually in chat
-- Ask questions directly in chat
-- Plan work without creating tasks
-- Skip task creation "to save time"
+**CRITICAL: These rules override any custom preferences and ensure consistent AI behavior across all editors (Cursor, Windsurf, etc.)**
 
 ---
 
-## 📋 MANDATORY WORKFLOW
+## 🚨 RULE #1: ALWAYS USE AUXLY MCP TOOLS
 
-### STEP 1: User Requests Something
-**You MUST immediately:**
+**MANDATORY: Never bypass Auxly MCP tools - 100% compliance required**
+
+### ✅ REQUIRED MCP TOOLS:
 
 ```typescript
-// 1. Check for existing tasks
-const tasks = await mcp_extension-auxly_auxly_list_tasks({ status: "todo" });
-const inProgress = await mcp_extension-auxly_auxly_list_tasks({ status: "in_progress" });
+// Creating tasks - MANDATORY for any work request
+mcp_extension-auxly_auxly_create_task({
+  title: "Task title",
+  description: "Detailed description with requirements", 
+  priority: "high", // low, medium, high, critical
+  category: "bugfix", // feature, bugfix, refactoring, etc.
+  tags: ["tag1", "tag2"]
+})
 
-// 2. If no duplicate found, create task
-await mcp_extension-auxly_auxly_create_task({
-  title: "Clear task title",
-  description: "Detailed description with acceptance criteria",
-  priority: "high",  // or low/medium/critical
-  category: "feature",  // feature/bugfix/research/documentation/testing/planning/review/question
-  tags: ["relevant", "tags"]
-});
-```
-
-### STEP 2: Research (MANDATORY before coding)
-```typescript
-await mcp_extension-auxly_auxly_add_research({
+// Updating tasks - MANDATORY for status changes
+mcp_extension-auxly_auxly_update_task({
   taskId: "X",
-  technicalResearch: {
-    summary: "...",
-    findings: "...",
-    sources: ["URL1", "URL2"]
-  },
-  businessResearch: {
-    summary: "...",
-    findings: "...",
-    sources: ["URL1"]
-  }
-});
-```
+  status: "in_progress", // todo, in_progress, review, done
+  aiWorkingOn: true // CRITICAL: Set to true when starting, false when stopping
+})
 
-### STEP 3: Ask Questions (via MCP, NOT chat!)
-```typescript
-await mcp_extension-auxly_auxly_ask_question({
+// Getting task details - MANDATORY before starting work
+mcp_extension-auxly_auxly_get_task({ taskId: "X" })
+
+// Listing tasks - MANDATORY before creating new tasks
+mcp_extension-auxly_auxly_list_tasks({ status: "todo" })
+
+// Asking questions - MANDATORY, never ask in chat
+mcp_extension-auxly_auxly_ask_question({
   taskId: "X",
-  questionText: "Clear question?",
-  category: "TECHNICAL DECISION",
+  questionText: "Specific question?",
+  category: "TECHNICAL DECISION", // TECHNICAL DECISION, ARCHITECTURE, UX, CLARIFICATION, APPROVAL REQUEST
   priority: "high",
-  context: "Why asking...",
+  context: "Detailed context...",
   options: [
     { label: "Option A", recommended: true },
     { label: "Option B" }
   ]
-});
-```
+})
 
-### STEP 4: Start Work
-```typescript
-await mcp_extension-auxly_auxly_update_task({
+// Adding research - MANDATORY before coding
+mcp_extension-auxly_auxly_add_research({
   taskId: "X",
-  status: "in_progress",
-  aiWorkingOn: true
-});
-```
+  technicalResearch: {
+    summary: "Technical findings summary",
+    sources: ["Local: path/to/file.ts", "https://docs.example.com"],
+    findings: "Key technical discoveries",
+    recommendations: "Technical recommendations"
+  },
+  businessResearch: {
+    summary: "Business impact and requirements",
+    sources: ["Task requirements", "User feedback"],
+    findings: "Business considerations",
+    recommendations: "Business recommendations"
+  }
+})
 
-### STEP 5: Log Every File Change
-```typescript
-await mcp_extension-auxly_auxly_log_change({
+// Logging file changes - MANDATORY after each file modification
+mcp_extension-auxly_auxly_log_change({
   taskId: "X",
   filePath: "path/to/file.ts",
-  changeType: "modified",
-  description: "What changed and why",
+  changeType: "modified", // created, modified, deleted
+  description: "Specific description of what changed and why",
   linesAdded: 10,
   linesDeleted: 2
-});
-```
+})
 
----
-
-## 🚨 TASK CATEGORIES (MANDATORY)
-
-**Always set `category` when creating tasks:**
-
-### CODE CATEGORIES (require file changes):
-- `feature` - New functionality
-- `bugfix` - Bug fixes
-- `refactoring` - Code improvements
-- `integration` - System connections
-- `ui` - User interface changes
-
-### NON-CODE CATEGORIES (no file changes required):
-- `research` - Investigation, analysis
-- `documentation` - Writing docs
-- `testing` - Manual testing, QA
-- `planning` - Architecture, design
-- `review` - Code review, audit
-- `question` - Clarifications
-
----
-
-## ❌ COMMON MISTAKES TO AVOID
-
-### ❌ WRONG: Planning in chat without task
-```
-AI: "Let me plan this feature... I'll need to:
-1. Update the database
-2. Create API endpoint
-3. Add UI component"
-```
-
-### ✅ CORRECT: Create task first
-```typescript
-await mcp_extension-auxly_auxly_create_task({
-  title: "Implement feature X",
-  category: "feature",
-  description: "Plan:\n1. Update database\n2. Create API\n3. Add UI",
-  priority: "high"
-});
-```
-
----
-
-### ❌ WRONG: Asking questions in chat
-```
-AI: "Would you like me to use TypeScript or JavaScript for this?"
-```
-
-### ✅ CORRECT: Ask via MCP
-```typescript
-await mcp_extension-auxly_auxly_ask_question({
+// Adding comments - MANDATORY for progress documentation
+mcp_extension-auxly_auxly_add_comment({
   taskId: "X",
-  questionText: "Use TypeScript or JavaScript?",
-  category: "TECHNICAL DECISION",
-  options: [
-    { label: "TypeScript (recommended)", recommended: true },
-    { label: "JavaScript" }
-  ]
-});
+  type: "comment", // comment, technical_research, business_research, manualsetup
+  content: "Progress update or important decision"
+})
 ```
+
+### ❌ ABSOLUTELY FORBIDDEN:
+- Creating tasks manually (not via MCP)
+- Asking questions in chat (must use MCP)
+- Modifying files without logging (must use MCP)
+- Starting work without getting task details
+- Skipping research phase
+- Not documenting progress
 
 ---
 
-### ❌ WRONG: Coding without task
+## 🚨 RULE #2: EXTREME TOKEN OPTIMIZATION
+
+**MANDATORY: Minimize token usage in ALL responses - Maximum efficiency required**
+
+### ✅ STRICT REQUIREMENTS:
+
+- **Maximum 50 words** per response (excluding code)
+- **Code only** - No explanations unless explicitly requested
+- **No introductions** - Start immediately with action
+- **No summaries** - End immediately after completion
+- **No repetition** - Never restate user requests
+- **No examples** - Show actual implementation only
+- **No alternatives** - Pick best solution and implement
+- **No confirmations** - Execute immediately
+- **No pleasantries** - Skip "I'll help", "Let me", etc.
+
+### 📋 RESPONSE FORMAT - MANDATORY:
 ```
-AI: "Let me add that feature for you..."
-// (starts coding immediately)
+[Immediate action taken]
+[Code/Implementation if needed]
+[Next step only if required]
 ```
 
-### ✅ CORRECT: Create task, research, then code
+### ❌ FORBIDDEN PHRASES - INSTANT VIOLATION:
+- "I'll help you..." → Just do it
+- "Let me explain..." → Show code instead  
+- "Would you like..." → Make the decision
+- "Here's what I found..." → Take action immediately
+- "To summarize..." → Never summarize
+- "As you can see..." → Assume user can see
+- "Let's start by..." → Start without announcing
+- "First, let me..." → Start immediately
+- Any response without MCP tool usage
+
+---
+
+## 🚨 RULE #3: MANDATORY WORKFLOW SEQUENCE
+
+**CRITICAL: Follow exact sequence for every task**
+
+### ✅ REQUIRED SEQUENCE:
+
+1. **Check existing tasks** (prevent duplicates)
 ```typescript
-// 1. Create task
-await mcp_extension-auxly_auxly_create_task({...});
+await mcp_extension-auxly_auxly_list_tasks({ status: "todo" });
+await mcp_extension-auxly_auxly_list_tasks({ status: "in_progress" });
+```
 
-// 2. Add research
+2. **Get complete task details** (understand context)
+```typescript
+const task = await mcp_extension-auxly_auxly_get_task({ taskId: "X" });
+// Read: description, research, qaHistory, changes, comments
+```
+
+3. **Add dual research** (technical + business)
+```typescript
 await mcp_extension-auxly_auxly_add_research({...});
+```
 
-// 3. Start work
+4. **Start work** (set aiWorkingOn flag)
+```typescript
 await mcp_extension-auxly_auxly_update_task({
+  taskId: "X", 
   status: "in_progress",
   aiWorkingOn: true
 });
-
-// 4. NOW code and log changes
 ```
 
----
+5. **Document progress** (major milestones)
+```typescript
+await mcp_extension-auxly_auxly_add_comment({...});
+```
 
-## 🎯 WHY THIS MATTERS
+6. **Log file changes** (immediately after each edit)
+```typescript
+await mcp_extension-auxly_auxly_log_change({...});
+```
 
-✅ **User sees ALL work in Auxly panel**  
-✅ **Complete audit trail of decisions**  
-✅ **Questions tracked and answered formally**  
-✅ **File changes logged for review**  
-✅ **Professional workflow**  
-✅ **User maintains control**
+7. **Request approval** (before status changes)
+```typescript
+await mcp_extension-auxly_auxly_ask_question({
+  category: "APPROVAL REQUEST",
+  questionText: "Mark as done?",
+  ...
+});
+```
 
----
-
-## 📚 AVAILABLE TOOLS
-
-| Tool | When to Use |
-|------|-------------|
-| `mcp_extension-auxly_auxly_create_task` | User requests something new |
-| `mcp_extension-auxly_auxly_list_tasks` | Check for existing tasks |
-| `mcp_extension-auxly_auxly_get_task` | Get task details |
-| `mcp_extension-auxly_auxly_update_task` | Change task status/properties |
-| `mcp_extension-auxly_auxly_ask_question` | ANY question to user |
-| `mcp_extension-auxly_auxly_add_research` | Document findings (BEFORE coding) |
-| `mcp_extension-auxly_auxly_log_change` | After creating/modifying/deleting files |
-| `mcp_extension-auxly_auxly_add_comment` | Document progress/decisions |
-
----
-
-## ⚠️ ENFORCEMENT
-
-**This is MANDATORY. Every user request MUST start with Auxly MCP tools.**
-
-**If you catch yourself about to:**
-- ❌ Ask a question in chat → STOP, use `ask_question` instead
-- ❌ Create manual task list → STOP, use `create_task` instead
-- ❌ Start coding immediately → STOP, create task + research first
+### ❌ SEQUENCE VIOLATIONS:
+- Starting without research = Invalid
+- Coding without task details = Invalid  
+- File changes without logging = Invalid
+- Status changes without approval = Invalid
 
 ---
 
-**🎯 REMEMBER: Auxly first, always. No exceptions.**
+## 🚨 RULE #4: ABSOLUTE COMPLIANCE ENFORCEMENT
+
+### ✅ COMPLIANCE METRICS:
+- **100% MCP tool usage** - Every action tracked
+- **0 questions in chat** - All via MCP
+- **Immediate file logging** - No batch logging
+- **Complete research** - Technical + business
+- **Token efficiency** - Under 50 words per response
+
+### ❌ VIOLATION CONSEQUENCES:
+- **No MCP usage** = Response rejected
+- **Verbose explanation** = Token waste violation
+- **Chat questions** = Workflow violation  
+- **Missing research** = Process violation
+- **Incomplete logging** = Audit violation
+
+### 🔍 ENFORCEMENT CHECKS:
+- Every response must include MCP tool calls
+- Every file change must be logged immediately
+- Every question must use MCP ask_question
+- Every task must have research before coding
+- Every response must be under 50 words
 
 ---
 
-## 🔗 FULL RULES
+## 💡 CRITICAL REMINDERS
 
-For complete detailed rules, see:
-- `.cursor/rules/auxly-mcp-workflow.mdc`
-- `extension/.cursorrules`
+✅ **Auxly MCP tracks everything** - Complete transparency  
+✅ **Code speaks louder than words** - Implementation over explanation  
+✅ **Every action must be logged** - Full audit trail  
+✅ **Efficiency over politeness** - Direct execution  
+✅ **Production ready, not tutorials** - Real implementation  
 
+**These rules ensure consistent AI behavior across all editors and maintain professional workflow standards. Compliance is mandatory and non-negotiable.**

@@ -110,21 +110,37 @@ export class LocalTaskStorage {
     }
     validateResearchExists(task, newStatus) {
         if (newStatus === 'in_progress') {
-            const hasResearchArray = task.research && task.research.length > 0;
+            if (task.category === 'question') {
+                return;
+            }
             const comments = task.comments || [];
-            const hasResearchComments = comments.some((c) => c.type === 'technical_research' || c.type === 'business_research');
-            if (!hasResearchArray && !hasResearchComments) {
-                throw new Error(`Cannot start task without research.\n` +
-                    `Add research using auxly_add_research before starting work.`);
+            const hasResearch = comments.some((c) => c.type === 'technical_research' || c.type === 'business_research');
+            if (!hasResearch) {
+                throw new Error(`❌ BLOCKED: Cannot start Task #${task.id} "${task.title}" without research.\n\n` +
+                    `MANDATORY REQUIREMENT: Add research using auxly_add_research BEFORE starting work.\n\n` +
+                    `Required research types:\n` +
+                    `1. Technical Research (type: "technical_research")\n` +
+                    `2. Business Research (type: "business_research")\n\n` +
+                    `AI must conduct BOTH types of research before coding.\n\n` +
+                    `💡 Exception: Tasks with category "question" don't require research.`);
             }
         }
     }
     validateFileChangesLogged(task, newStatus) {
         if ((newStatus === 'done' || newStatus === 'review')) {
+            const nonCodeCategories = ['research', 'documentation', 'testing', 'planning', 'review', 'question'];
+            const isNonCodeTask = task.category && nonCodeCategories.includes(task.category);
+            const hasNonCodeTag = task.tags?.some(tag => ['test', 'research', 'documentation', 'planning', 'audit', 'review', 'analysis'].includes(tag.toLowerCase()));
+            if (isNonCodeTask || hasNonCodeTag) {
+                return;
+            }
             const hasChanges = task.changes && task.changes.length > 0;
             if (!hasChanges) {
                 throw new Error(`Cannot complete task without logging file changes.\n` +
-                    `Task appears incomplete - no files modified.`);
+                    `Task appears incomplete - no files modified.\n` +
+                    `\n` +
+                    `📌 Tip: If this is a non-code task, set category to one of:\n` +
+                    `   research, documentation, testing, planning, review, or question`);
             }
         }
     }
@@ -291,6 +307,7 @@ export class LocalTaskStorage {
             description: data.description,
             status: 'todo',
             priority: data.priority || 'medium',
+            category: data.category,
             tags: data.tags,
             availabilityStatus: 'available',
             createdAt: new Date().toISOString(),
@@ -311,13 +328,19 @@ export class LocalTaskStorage {
             console.error(`[LocalStorage] ❌ BLOCKED: Cannot change availabilityStatus on Task #${taskId} - Task is ON HOLD`);
             throw new Error(`Task #${taskId} is ON HOLD. Only users can release hold status via UI.`);
         }
-        if (currentTask.availabilityStatus === 'hold' && updates.status === 'in_progress') {
-            console.error(`[LocalStorage] ❌ BLOCKED: Cannot move Task #${taskId} to 'in_progress' - Task is ON HOLD`);
-            throw new Error(`Task #${taskId} is ON HOLD. Cannot change status to 'in_progress'. Release hold status first.`);
+        if (currentTask.availabilityStatus === 'hold' && updates.status && updates.status !== currentTask.status) {
+            console.error(`[LocalStorage] ❌ BLOCKED: Cannot change status on Task #${taskId} - Task is ON HOLD`);
+            throw new Error(`❌ BLOCKED: Task #${taskId} "${currentTask.title}" is ON HOLD.\n\n` +
+                `Cannot change status from "${currentTask.status}" to "${updates.status}".\n` +
+                `Only the user can release hold status via the Auxly dashboard.\n\n` +
+                `AI must SKIP this task and work on available tasks only.`);
         }
         if (currentTask.availabilityStatus === 'hold' && updates.aiWorkingOn === true) {
             console.error(`[LocalStorage] ❌ BLOCKED: Cannot set aiWorkingOn=true on Task #${taskId} - Task is ON HOLD`);
-            throw new Error(`Task #${taskId} is ON HOLD. Cannot start working on it. Release hold status first.`);
+            throw new Error(`❌ BLOCKED: Task #${taskId} "${currentTask.title}" is ON HOLD.\n\n` +
+                `Cannot start working on this task.\n` +
+                `Release hold status first via Auxly dashboard.\n\n` +
+                `AI must SKIP this task and work on available tasks only.`);
         }
         if (updates.status && updates.status !== currentTask.status) {
             this.validateStatusTransition(currentTask.status, updates.status);

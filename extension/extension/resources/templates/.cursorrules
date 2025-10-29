@@ -1,0 +1,492 @@
+# 🤖 Auxly Extension - AI Agent Strict Workflow Rules
+
+**CRITICAL: These rules are MANDATORY and MUST be followed 100% of the time when working on the Auxly extension.**
+
+---
+
+## ⚠️ ABSOLUTE RULES - NO EXCEPTIONS
+
+### 1. 🚫 NEVER BYPASS AUXLY MCP TOOLS
+
+**ALWAYS use Auxly MCP tools for:**
+- ✅ Creating tasks → `mcp_auxly_auxly_create_task`
+- ✅ Updating tasks → `mcp_auxly_auxly_update_task`
+- ✅ Asking questions → `mcp_auxly_auxly_ask_question`
+- ✅ Logging changes → `mcp_auxly_auxly_log_file_change`
+- ✅ Adding research → `mcp_auxly_auxly_add_research`
+- ✅ Getting task details → `mcp_auxly_auxly_get_task`
+- ✅ Listing tasks → `mcp_auxly_auxly_list_tasks`
+
+**❌ FORBIDDEN:**
+- Asking questions in chat instead of via MCP
+- Creating tasks manually without MCP
+- Changing code without logging to tasks
+- Skipping research
+- Assuming user intent without asking
+
+---
+
+### 2. 📋 CHECK ALL TASKS BEFORE CREATING NEW ONES
+
+**BEFORE creating ANY new task:**
+
+```typescript
+// STEP 1: Check ALL existing tasks
+const todoTasks = await mcp_auxly_auxly_list_tasks({ status: "todo" });
+const inProgressTasks = await mcp_auxly_auxly_list_tasks({ status: "in_progress" });
+
+// STEP 2: Read task titles to check for duplicates
+// STEP 3: If similar task exists, use that task ID
+// STEP 4: Only create new task if NO duplicate found
+```
+
+**❌ FORBIDDEN:**
+- Creating duplicate tasks
+- Not checking existing tasks first
+- Assuming no related task exists
+
+**Why:** Prevents task duplication and maintains clean task list.
+
+---
+
+### 3. ❓ ALL QUESTIONS VIA MCP - NEVER IN CHAT
+
+**EVERY question MUST go through MCP:**
+
+```typescript
+mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Clear, specific question?",
+  category: "TECHNICAL DECISION", // or CLARIFICATION, APPROVAL REQUEST, etc.
+  priority: "high",
+  context: "Detailed context explaining why asking...",
+  options: [
+    { label: "Option A", recommended: true },
+    { label: "Option B" },
+    { label: "Option C" }
+  ]
+})
+```
+
+**Categories to use:**
+- `TECHNICAL DECISION` - For technical choices
+- `ARCHITECTURE` - For design decisions
+- `UX` - For user experience questions
+- `CLARIFICATION` - When user request unclear
+- `APPROVAL REQUEST` - For significant changes
+
+**❌ FORBIDDEN:**
+- Asking "What would you like me to do?" in chat
+- Saying "Let me know if..." in chat
+- Any form of question outside MCP system
+
+**Why:** Questions in MCP are tracked, logged, and visible in task history.
+
+---
+
+### 4. 📖 READ TASKS CAREFULLY BEFORE STARTING
+
+**When user mentions a task, ALWAYS:**
+
+```typescript
+// STEP 1: Get full task details
+const task = await mcp_auxly_auxly_get_task({ taskId: "X" });
+
+// STEP 2: Read:
+// - task.title
+// - task.description
+// - task.priority
+// - task.tags
+// - task.research (existing research)
+// - task.qaHistory (previous Q&A)
+// - task.changes (files already modified)
+// - task.comments (AI/user notes)
+
+// STEP 3: Understand FULL context before starting
+```
+
+**❌ FORBIDDEN:**
+- Starting work without reading full task
+- Assuming task requirements
+- Ignoring existing research/comments
+- Not checking previous Q&A history
+
+**Why:** Prevents duplicate work and ensures you understand full requirements.
+
+---
+
+### 5. 🚫 NEVER CHANGE TASK STATUS WITHOUT CONFIRMATION
+
+**Task status changes REQUIRE user confirmation via MCP:**
+
+```typescript
+// ❌ WRONG - Don't do this without asking:
+await mcp_auxly_auxly_update_task({
+  taskId: "X",
+  status: "done"
+});
+
+// ✅ CORRECT - Ask first:
+await mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Task #X appears complete. Mark as 'done'?",
+  category: "APPROVAL REQUEST",
+  priority: "medium",
+  context: "All acceptance criteria met:\n- Feature implemented\n- Tests passing\n- Documentation updated",
+  options: [
+    { label: "✅ Mark as done", recommended: true },
+    { label: "📝 Move to review first" },
+    { label: "❌ Not ready yet" }
+  ]
+});
+```
+
+**Status changes that REQUIRE confirmation:**
+- `in_progress` → `review` (ask if ready for review)
+- `in_progress` → `done` (ask if task complete)
+- `review` → `done` (ask if user approved)
+- `todo` → `cancelled` (ask if user wants to cancel)
+
+**Status changes that DON'T need confirmation:**
+- `todo` → `in_progress` (when starting work)
+
+**Why:** User maintains control over task lifecycle and can review work before marking complete.
+
+---
+
+### 6. 📝 LOG EVERY FILE CHANGE
+
+**IMMEDIATELY after creating/modifying/deleting ANY file:**
+
+```typescript
+await mcp_auxly_auxly_log_file_change({
+  taskId: "X",
+  filePath: "extension/src/webview/TaskPanelProvider.ts",
+  changeType: "modified", // or "created" or "deleted"
+  description: "Added trial badge to header with celebration emoji and yellow styling to match 'Change Status' button design",
+  linesAdded: 45,
+  linesDeleted: 3
+});
+```
+
+**❌ FORBIDDEN:**
+- Modifying files without logging
+- Logging multiple files at end of task (log immediately)
+- Vague descriptions like "Updated file" or "Changes"
+
+**Why:** Creates audit trail and helps user understand what changed.
+
+---
+
+### 7. 🔬 RESEARCH FIRST, CODE SECOND
+
+**BEFORE writing ANY code:**
+
+```typescript
+// 1. Search local codebase
+// Use codebase_search, grep, read_file
+
+// 2. Document findings
+await mcp_auxly_auxly_add_research({
+  taskId: "X",
+  type: "technical",
+  source: "Local: extension/src/config/local-config.ts",
+  summary: "Existing LocalConfigService uses singleton pattern with getTrialInfoHybrid() method for trial tracking",
+  relevance: "Can reuse this service for new trial badge display logic"
+});
+
+// 3. Search internet for best practices (if needed)
+// Use web_search tool
+
+// 4. Add more research
+await mcp_auxly_auxly_add_research({
+  taskId: "X",
+  type: "technical",
+  source: "https://code.visualstudio.com/api/extension-guides/webview",
+  summary: "VS Code webview CSP requires 'data:' in img-src for base64 images",
+  relevance: "Need to update CSP to display embedded logo images"
+});
+```
+
+**❌ FORBIDDEN:**
+- Writing code without research
+- Assuming existing patterns
+- Not documenting research findings
+
+**Why:** Ensures you understand existing code and use best practices.
+
+---
+
+### 8. 🔐 REQUEST APPROVAL FOR SIGNIFICANT CHANGES
+
+**ALWAYS ask via MCP before:**
+- Database schema changes
+- API endpoint changes (breaking)
+- Security changes
+- Architecture refactoring
+- Dependency changes (major versions)
+- Breaking changes
+
+```typescript
+await mcp_auxly_auxly_ask_question({
+  taskId: "X",
+  questionText: "Approve: Add 'trial_status' column to users table?",
+  category: "APPROVAL REQUEST",
+  priority: "critical",
+  context: "Database change required for hybrid trial system. Migration will add:\n- trial_start (timestamptz)\n- trial_end (timestamptz)\n- trial_status (varchar check constraint)",
+  options: [
+    { label: "✅ Approve migration", recommended: true },
+    { label: "❌ Reject" },
+    { label: "📋 Show detailed migration first" }
+  ]
+});
+```
+
+**Why:** User stays in control of significant decisions.
+
+---
+
+### 9. ⚙️ ALWAYS UPDATE `aiWorkingOn` FLAG
+
+**When starting work:**
+```typescript
+await mcp_auxly_auxly_update_task({
+  taskId: "X",
+  status: "in_progress",
+  aiWorkingOn: true  // ✅ SET TO TRUE
+});
+```
+
+**When stopping/pausing/completing:**
+```typescript
+await mcp_auxly_auxly_update_task({
+  taskId: "X",
+  status: "review", // or "done"
+  aiWorkingOn: false  // ✅ SET TO FALSE
+});
+```
+
+**Why:** Shows user which task AI is actively working on (animated border in UI).
+
+---
+
+### 10. 💬 ADD COMMENTS TO DOCUMENT PROGRESS
+
+**Use `mcp_auxly_auxly_add_comment` to:**
+- Explain decisions made
+- Document roadblocks
+- Summarize progress
+- Note manual steps user must take
+
+```typescript
+await mcp_auxly_auxly_add_comment({
+  taskId: "X",
+  type: "note", // or "result" or "manualsetup"
+  content: "✅ Phase 1 complete: Backend API implemented with /trial/verify and /trial/start endpoints. Ready for Phase 2: Frontend sync."
+});
+```
+
+**Comment types:**
+- `note` - Progress updates, decisions, explanations
+- `result` - Task completion summary
+- `manualsetup` - Steps user must perform manually
+
+**Why:** Provides context for future work and helps user understand progress.
+
+---
+
+## 📚 COMPLETE WORKFLOW EXAMPLE
+
+```
+User: "Add trial badge to header"
+
+STEP 1: Check for existing tasks
+├─ await mcp_auxly_auxly_list_tasks({ status: "todo" })
+├─ await mcp_auxly_auxly_list_tasks({ status: "in_progress" })
+└─ Review titles - no duplicate found ✅
+
+STEP 2: Create task (no duplicate exists)
+└─ await mcp_auxly_auxly_create_task({
+     title: "Add trial badge to header",
+     description: "Display trial countdown in header...",
+     priority: "high",
+     tags: ["ui", "trial", "header"]
+   })
+
+STEP 3: Research
+├─ Read existing header code
+├─ Check trial tracking implementation
+└─ await mcp_auxly_auxly_add_research(...)
+
+STEP 4: Ask questions if unclear
+└─ await mcp_auxly_auxly_ask_question({
+     questionText: "Should trial badge match 'Change Status' button style?",
+     category: "UX",
+     ...
+   })
+
+STEP 5: Wait for answer
+└─ User answers via popup ✅
+
+STEP 6: Start work
+└─ await mcp_auxly_auxly_update_task({
+     taskId: "X",
+     status: "in_progress",
+     aiWorkingOn: true
+   })
+
+STEP 7: Implement changes
+├─ Modify files
+└─ IMMEDIATELY log each change:
+   await mcp_auxly_auxly_log_file_change(...)
+
+STEP 8: Request approval if needed (significant changes)
+└─ await mcp_auxly_auxly_ask_question({
+     category: "APPROVAL REQUEST",
+     ...
+   })
+
+STEP 9: Add result comment
+└─ await mcp_auxly_auxly_add_comment({
+     type: "result",
+     content: "✅ Trial badge implemented..."
+   })
+
+STEP 10: Ask before marking done
+└─ await mcp_auxly_auxly_ask_question({
+     questionText: "Task complete. Mark as 'done'?",
+     category: "APPROVAL REQUEST",
+     ...
+   })
+
+STEP 11: After user approval
+└─ await mcp_auxly_auxly_update_task({
+     taskId: "X",
+     status: "done",
+     aiWorkingOn: false
+   })
+```
+
+---
+
+## 🚫 FORBIDDEN PATTERNS
+
+### ❌ DON'T DO THIS:
+```typescript
+// Creating task without checking for duplicates
+await mcp_auxly_auxly_create_task(...);
+
+// Asking question in chat
+"Would you like me to implement this feature?"
+
+// Changing status without asking
+await mcp_auxly_auxly_update_task({ taskId: "X", status: "done" });
+
+// Modifying file without logging
+// (modify TaskPanelProvider.ts)
+// ... no log call ...
+
+// Starting work without research
+await mcp_auxly_auxly_update_task({ status: "in_progress" });
+// ... immediately start coding ...
+```
+
+### ✅ ALWAYS DO THIS:
+```typescript
+// Check tasks first
+await mcp_auxly_auxly_list_tasks({ status: "todo" });
+// Then create if no duplicate
+
+// Ask via MCP
+await mcp_auxly_auxly_ask_question(...);
+
+// Ask before status change
+await mcp_auxly_auxly_ask_question({
+  questionText: "Mark task as 'done'?",
+  category: "APPROVAL REQUEST",
+  ...
+});
+
+// Log immediately after change
+// (modify TaskPanelProvider.ts)
+await mcp_auxly_auxly_log_file_change(...);
+
+// Research first
+await mcp_auxly_auxly_add_research(...);
+// Then start work
+```
+
+---
+
+## 🎯 SUCCESS CRITERIA
+
+**Before completing ANY task, verify:**
+
+- ✅ Task checked for duplicates before creation
+- ✅ Research documented (at least 1-2 sources)
+- ✅ All questions asked via MCP (not chat)
+- ✅ All file changes logged immediately
+- ✅ Approval requested for significant changes
+- ✅ `aiWorkingOn` set correctly (true → false)
+- ✅ Progress documented via comments
+- ✅ User confirmed before marking "done"
+
+---
+
+## 💡 WHY THESE RULES EXIST
+
+1. **Transparency** - User sees all work in task panel
+2. **Control** - User approves significant changes
+3. **Auditability** - Complete history of decisions and changes
+4. **Quality** - Research ensures best practices
+5. **No Surprises** - User confirms before status changes
+6. **Clean Task List** - No duplicate tasks
+7. **Professional** - Proper workflow demonstrates quality
+
+---
+
+## ⚠️ ENFORCEMENT
+
+**These rules are MANDATORY.**
+
+**Violating these rules:**
+- ❌ Breaks user trust
+- ❌ Creates confusion
+- ❌ Loses audit trail
+- ❌ Results in poor quality
+- ❌ May require work to be redone
+
+**Following these rules:**
+- ✅ Builds user trust
+- ✅ Creates transparency
+- ✅ Maintains quality
+- ✅ Ensures completeness
+- ✅ Professional workflow
+
+---
+
+## 📖 QUICK REFERENCE
+
+| Situation | Action | Tool |
+|-----------|--------|------|
+| User requests feature | Check tasks first | `list_tasks` |
+| No duplicate found | Create task | `create_task` |
+| Need info about existing code | Research | `add_research` |
+| Anything unclear | Ask question | `ask_question` |
+| Starting work | Update status + aiWorkingOn: true | `update_task` |
+| Created/modified file | Log change immediately | `log_file_change` |
+| Database change | Request approval | `ask_question` (APPROVAL) |
+| Progress update | Add comment | `add_comment` |
+| Ready for review | Ask user first | `ask_question` |
+| User confirms complete | Update status + aiWorkingOn: false | `update_task` |
+
+---
+
+**REMEMBER: EVERY interaction with user should use Auxly MCP tools. Never bypass the system.**
+
+**When in doubt, ask via MCP. Always.**
+
+---
+
+🎯 **GOAL: 100% workflow compliance, 100% transparency, 100% user control**
+

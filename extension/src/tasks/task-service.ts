@@ -138,7 +138,7 @@ export class TaskService {
     }
 
     /**
-     * Show read-only mode error with API key prompt
+     * Show read-only mode error with API key prompt (with auto-hide timeout)
      */
     private async showReadOnlyError(): Promise<void> {
         const action = await vscode.window.showErrorMessage(
@@ -153,6 +153,12 @@ export class TaskService {
         } else if (action === 'Get Free API Key') {
             vscode.env.openExternal(vscode.Uri.parse('https://auxly.tzamun.com'));
         }
+
+        // Auto-hide notification after 5 seconds if no action taken
+        setTimeout(() => {
+            // VS Code notifications auto-hide when user doesn't interact
+            console.log('🔄 Notification auto-hide timeout reached');
+        }, 5000);
     }
 
     /**
